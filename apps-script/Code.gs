@@ -2,7 +2,7 @@
 // Elke inzending wordt een nieuwe rij in het tabblad "Feedback".
 
 var SHEET_NAME = "Feedback";
-var HEADERS = ["Tijdstip", "Event", "Cijfer", "Waarom", "Interesse in talk", "Naam", "Organisatie", "E-mail"];
+var HEADERS = ["Tijdstip", "Event", "Cijfer", "Waarom", "Interesse in talk", "E-mail"];
 
 // Vul je eigen adres in om bij elke lead een mail te krijgen. Leeg laten = geen mail.
 var NOTIFY_EMAIL = "";
@@ -22,8 +22,6 @@ function doPost(e) {
       score,
       clean(data.reason, 2000),
       data.interest ? "Ja" : "Nee",
-      clean(data.name, 200),
-      clean(data.organisation, 200),
       clean(data.email, 320)
     ];
     sheet.appendRow(row);
@@ -31,13 +29,11 @@ function doPost(e) {
     if (data.interest && NOTIFY_EMAIL) {
       MailApp.sendEmail({
         to: NOTIFY_EMAIL,
-        subject: "Nieuwe lead na keynote: " + (row[6] || row[5] || row[7]),
+        subject: "Nieuwe lead na keynote: " + row[5],
         body: [
           "Event: " + row[1],
           "Cijfer: " + row[2],
-          "Naam: " + row[5],
-          "Organisatie: " + row[6],
-          "E-mail: " + row[7],
+          "E-mail: " + row[5],
           "",
           "Waarom dit cijfer:",
           row[3]

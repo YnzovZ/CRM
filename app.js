@@ -72,8 +72,6 @@
       score: Number(checked.value),
       reason: document.getElementById("reason").value.trim(),
       interest: interest.checked,
-      name: interest.checked ? document.getElementById("name").value.trim() : "",
-      organisation: interest.checked ? document.getElementById("organisation").value.trim() : "",
       email: interest.checked ? email.value.trim() : ""
     };
 
