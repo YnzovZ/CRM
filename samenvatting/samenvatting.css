@@ -160,8 +160,10 @@ a { color: inherit; text-decoration: none; }
 /* Contact */
 .contact { padding: 28px var(--pad) calc(32px + env(safe-area-inset-bottom)); display: flex; flex-direction: column; gap: 18px; }
 .contact h2 { font-size: clamp(28px, 8vw, 34px); line-height: 0.95; }
-.contact-row { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; border-top: 2px solid var(--ink); padding-top: 16px; }
+.contact-row { display: flex; justify-content: space-between; align-items: flex-end; gap: 12px; border-top: 2px solid var(--ink); padding-top: 16px; }
 .contact-links { display: flex; flex-direction: column; gap: 4px; font-weight: 700; font-size: 16px; line-height: 1.2; }
 .contact-links a { padding: 6px 0; }
 .contact-links a:hover { color: var(--orange); }
-.contact-row img { width: 96px; flex-shrink: 0; }
+.contact-logo { width: clamp(72px, 23vw, 96px); flex-shrink: 0; }
+.linkedin { display: block; flex-shrink: 0; padding: 6px 0; }
+.linkedin img { width: clamp(62px, 19vw, 76px); height: auto; display: block; }
