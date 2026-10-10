@@ -47,12 +47,21 @@ h1 {
   margin: 0 0 10px;
   font-family: var(--display);
   font-weight: 800;
-  font-size: 44px;
-  line-height: 0.92;
+  font-size: 38px;
+  line-height: 0.95;
   letter-spacing: -0.03em;
 }
 
-.lead { margin: 0 0 28px; color: var(--muted); }
+.form-title {
+  margin: 0 0 16px;
+  font-family: var(--display);
+  font-weight: 800;
+  font-size: 30px;
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+
+.lead { margin: 0 0 32px; color: var(--muted); }
 
 .block {
   margin: 0 0 16px;
