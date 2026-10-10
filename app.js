@@ -13,7 +13,7 @@
 
   // Event-code uit de QR-link, bijvoorbeeld ?event=rabobank-2026
   var params = new URLSearchParams(location.search);
-  var event = (params.get("event") || "onbekend").slice(0, 100);
+  var event = (params.get("event") || "algemeen").slice(0, 100);
 
   document.getElementById("skip").href = summaryUrl;
 

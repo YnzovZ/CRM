@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <title>QR-code maken</title>
+  <link rel="stylesheet" href="/styles.css">
+  <style>
+    .qr { display: flex; justify-content: center; padding: 24px; background: #fff; border: 2px solid var(--line); border-radius: var(--radius); margin: 0 0 16px; }
+    .qr svg { width: 100%; max-width: 320px; height: auto; display: block; }
+    .link { word-break: break-all; font-size: 15px; margin: 10px 0 0; }
+    .link a { color: var(--text); }
+    .hint { color: var(--muted); font-size: 14px; margin: 8px 0 0; }
+    .actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .actions .primary { margin: 0; font-size: 17px; }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <img class="logo" src="/samenvatting/assets/logo.svg" alt="ynzo.">
+    <p class="eyebrow">Voor jezelf</p>
+    <h1>jouw QR-code</h1>
+    <p class="lead">Dit is de vaste code voor al je keynotes. Download hem en zet hem op je laatste slide.</p>
+
+    <div class="block">
+      <label for="event">Naam van het event (optioneel)</label>
+      <input type="text" id="event" placeholder="bijvoorbeeld rabobank-2026" autocomplete="off">
+      <p class="hint">Laat leeg voor de vaste code. Vul je toch iets in, dan zie je die naam terug in de kolom "Event" van je sheet.</p>
+      <p class="link">Link: <a id="link" href="/" target="_blank" rel="noopener"></a></p>
+    </div>
+
+    <div class="qr" id="qr" aria-label="QR-code"></div>
+
+    <div class="actions">
+      <button type="button" class="primary" id="png">Download PNG</button>
+      <button type="button" class="primary" id="svg">Download SVG</button>
+    </div>
+    <p class="hint">PNG werkt overal. SVG blijft scherp op elk formaat, handig voor Keynote en PowerPoint.</p>
+  </main>
+
+  <script src="qrcode.js"></script>
+  <script>
+    (function () {
+      var input = document.getElementById("event");
+      var link = document.getElementById("link");
+      var box = document.getElementById("qr");
+      var current = { slug: "", url: "", svg: "" };
+
+      function slugify(s) {
+        return s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "")
+          .replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 60);
+      }
+
+      function render() {
+        var slug = slugify(input.value);
+        var url = location.origin + "/" + (slug ? "?event=" + slug : "");
+        var qr = qrcode(0, "M");
+        qr.addData(url);
+        qr.make();
+        var svg = qr.createSvgTag({ cellSize: 10, margin: 4, scalable: true });
+        box.innerHTML = svg;
+        link.textContent = url;
+        link.href = url;
+        current = { slug: slug || "algemeen", url: url, svg: svg };
+      }
+
+      function download(name, href) {
+        var a = document.createElement("a");
+        a.href = href;
+        a.download = name;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+      }
+
+      document.getElementById("svg").addEventListener("click", function () {
+        var blob = new Blob([current.svg], { type: "image/svg+xml" });
+        var href = URL.createObjectURL(blob);
+        download("qr-" + current.slug + ".svg", href);
+        setTimeout(function () { URL.revokeObjectURL(href); }, 1000);
+      });
+
+      document.getElementById("png").addEventListener("click", function () {
+        var img = new Image();
+        var src = URL.createObjectURL(new Blob([current.svg], { type: "image/svg+xml" }));
+        img.onload = function () {
+          var size = 2000;
+          var canvas = document.createElement("canvas");
+          canvas.width = canvas.height = size;
+          var ctx = canvas.getContext("2d");
+          ctx.fillStyle = "#fff";
+          ctx.fillRect(0, 0, size, size);
+          ctx.imageSmoothingEnabled = false;
+          ctx.drawImage(img, 0, 0, size, size);
+          URL.revokeObjectURL(src);
+          download("qr-" + current.slug + ".png", canvas.toDataURL("image/png"));
+        };
+        img.src = src;
+      });
+
+      input.addEventListener("input", render);
+      render();
+    })();
+  </script>
+</body>
+</html>

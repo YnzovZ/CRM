@@ -28,15 +28,9 @@ Het tabblad "Feedback" met kopjes wordt automatisch aangemaakt bij de eerste inz
 2. Framework preset: Other. Geen build-commando nodig.
 3. Deploy.
 
-## Stap 3. QR-code per event
+## Stap 3. QR-code
 
-Gebruik per keynote een eigen link, zodat je in de sheet per event kunt filteren:
-
-```
-https://jouw-domein.vercel.app/?event=rabobank-2026
-```
-
-Maak daar een QR-code van en zet die op je laatste slide.
+Open `/qr/` op je eigen Vercel-adres en download de code als PNG of SVG. Eén code werkt voor al je keynotes; via het tijdstip in de sheet zie je welke reactie bij welk event hoort. Wil je toch per event filteren, vul dan op die pagina een eventnaam in.
 
 ## Samenvatting aanpassen
 
