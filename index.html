@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Wat vond je ervan?</title>
+  <meta name="robots" content="noindex">
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <main class="wrap">
+    <header>
+      <img class="logo" src="/samenvatting/assets/logo.svg" alt="ynzo.">
+      <p class="eyebrow">Bedankt voor je aandacht</p>
+      <h1>wat vond je ervan?</h1>
+      <p class="lead">Dertig seconden, daarna krijg je de samenvatting van de keynote.</p>
+    </header>
+
+    <form id="feedback" novalidate>
+      <fieldset class="block">
+        <legend>Welk cijfer geef je de keynote?</legend>
+        <div class="scale" role="radiogroup" aria-label="Cijfer van 1 tot 10">
+          <!-- 1 t/m 10, gevuld door app.js -->
+        </div>
+        <div class="scale-labels" aria-hidden="true"><span>1</span><span>10</span></div>
+        <p class="error" id="score-error" hidden>Kies een cijfer.</p>
+      </fieldset>
+
+      <div class="block">
+        <label for="reason">Waarom dit cijfer?</label>
+        <textarea id="reason" name="reason" rows="4" maxlength="2000" placeholder="Wat bleef hangen, wat mocht scherper?"></textarea>
+      </div>
+
+      <div class="block">
+        <label class="check">
+          <input type="checkbox" id="interest" name="interest">
+          <span>Ik ben geïnteresseerd in een talk voor mijn eigen organisatie</span>
+        </label>
+
+        <div id="contact" class="contact" hidden>
+          <label for="name">Naam</label>
+          <input type="text" id="name" name="name" autocomplete="name" maxlength="200">
+
+          <label for="organisation">Organisatie</label>
+          <input type="text" id="organisation" name="organisation" autocomplete="organization" maxlength="200">
+
+          <label for="email">E-mailadres</label>
+          <input type="email" id="email" name="email" autocomplete="email" inputmode="email" maxlength="320">
+          <p class="error" id="email-error" hidden>Vul een geldig e-mailadres in.</p>
+
+          <p class="privacy">Ik gebruik je gegevens alleen om contact met je op te nemen over een talk. Geen nieuwsbrief, geen doorverkoop.</p>
+        </div>
+      </div>
+
+      <!-- Honeypot tegen spambots, onzichtbaar voor mensen -->
+      <div class="hp" aria-hidden="true">
+        <label for="website">Website</label>
+        <input type="text" id="website" name="website" tabindex="-1" autocomplete="off">
+      </div>
+
+      <button type="submit" class="primary" id="submit">Verstuur en bekijk de samenvatting</button>
+      <a class="skip" id="skip" href="/samenvatting/">Liever direct naar de samenvatting</a>
+    </form>
+  </main>
+
+  <script src="/config.js"></script>
+  <script src="/app.js"></script>
+</body>
+</html>

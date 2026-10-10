@@ -1,0 +1,180 @@
+:root {
+  --bg: #FAF8EC;
+  --surface: #ffffff;
+  --text: #0A0A0A;
+  --muted: #55534c;
+  --line: #0A0A0A;
+  --accent: #FF4100;
+  --accent-text: #0A0A0A;
+  --error: #B42A00;
+  --radius: 16px;
+  --display: "Brother 1816 Soft", "Arial Rounded MT Bold", sans-serif;
+}
+
+@font-face { font-family: "Brother 1816 Soft"; font-weight: 800; font-display: swap; src: url("/samenvatting/assets/brother-1816-soft-800.ttf") format("truetype"); }
+@font-face { font-family: "Gotham"; font-weight: 500; font-display: swap; src: url("/samenvatting/assets/gotham-500.otf") format("opentype"); }
+@font-face { font-family: "Gotham"; font-weight: 700; font-display: swap; src: url("/samenvatting/assets/gotham-700.otf") format("opentype"); }
+
+* { box-sizing: border-box; }
+
+html, body { margin: 0; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font: 500 17px/1.5 Gotham, "Helvetica Neue", Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+.wrap {
+  max-width: 520px;
+  margin: 0 auto;
+  padding: 32px 16px calc(40px + env(safe-area-inset-bottom));
+}
+
+.logo { display: block; width: 84px; margin-bottom: 28px; }
+
+.eyebrow {
+  margin: 0 0 8px;
+  font-family: var(--display);
+  font-weight: 800;
+  font-size: 14px;
+  letter-spacing: .06em;
+  color: var(--accent);
+}
+
+h1 {
+  margin: 0 0 10px;
+  font-family: var(--display);
+  font-weight: 800;
+  font-size: 44px;
+  line-height: 0.92;
+  letter-spacing: -0.03em;
+}
+
+.lead { margin: 0 0 28px; color: var(--muted); }
+
+.block {
+  margin: 0 0 16px;
+  padding: 20px;
+  border: 2px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+fieldset.block { min-width: 0; }
+
+legend, .block > label:first-child {
+  display: block;
+  padding: 0;
+  margin-bottom: 12px;
+  font-weight: 700;
+}
+
+legend { float: left; width: 100%; }
+legend + * { clear: both; }
+
+.scale {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+}
+
+.scale input { position: absolute; opacity: 0; pointer-events: none; }
+
+.scale label {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 48px;
+  border: 2px solid var(--line);
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 18px;
+  cursor: pointer;
+  user-select: none;
+  transition: background .15s, border-color .15s, color .15s;
+}
+
+.scale input:checked + label {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-text);
+}
+
+.scale input:focus-visible + label { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.scale-labels {
+  display: none;
+}
+
+textarea, input[type="text"], input[type="email"] {
+  width: 100%;
+  padding: 12px 14px;
+  border: 2px solid var(--line);
+  border-radius: 10px;
+  background: var(--bg);
+  color: var(--text);
+  font: inherit;
+}
+
+textarea { resize: vertical; min-height: 110px; }
+
+textarea:focus, input:focus { outline: 3px solid var(--accent); outline-offset: 1px; }
+
+.check {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.check input {
+  flex: none;
+  width: 22px;
+  height: 22px;
+  margin: 2px 0 0;
+  accent-color: var(--accent);
+}
+
+.contact { margin-top: 18px; }
+
+.contact label {
+  display: block;
+  margin: 14px 0 6px;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.privacy { margin: 14px 0 0; color: var(--muted); font-size: 14px; }
+
+.error { margin: 10px 0 0; color: var(--error); font-size: 15px; }
+
+.hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+
+.primary {
+  display: block;
+  width: 100%;
+  margin-top: 8px;
+  padding: 17px 20px;
+  border: 0;
+  border-radius: var(--radius);
+  background: var(--accent);
+  color: var(--accent-text);
+  font: inherit;
+  font-family: var(--display);
+  font-weight: 800;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+.primary:disabled { opacity: .6; cursor: progress; }
+
+.skip {
+  display: block;
+  margin-top: 16px;
+  text-align: center;
+  color: var(--muted);
+  font-size: 15px;
+}
