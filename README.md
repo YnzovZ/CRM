@@ -36,6 +36,15 @@ Open `/qr/` op je eigen Vercel-adres en download de code als PNG of SVG. Eén co
 
 De samenvatting is een losse kopie van het artifact "Handout telefoon". Pas je het ontwerp aan in Claude Design, vraag dan in een sessie om `samenvatting/index.html` bij te werken naar de nieuwe versie.
 
+## PDF van de kernpunten
+
+`samenvatting/kernpunten-ynzo.pdf` wordt gemaakt van de samenvattingspagina. Na elke wijziging aan de samenvatting opnieuw maken:
+
+```
+python3 -m http.server 8765 &
+python3 scripts/make_pdf.py
+```
+
 ## Automatische controle
 
 Elke ochtend controleert een geplande Claude-taak of het artifact in `samenvatting/bron.json` een nieuwe versie heeft. Zo ja, dan zet de taak de nieuwe versie klaar op de branch `handout-update` (testlink via Vercel) en krijg je een melding. Pas als je "live" zegt, gaat de nieuwe versie naar de productiebranch.

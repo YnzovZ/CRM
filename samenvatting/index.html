@@ -123,6 +123,16 @@
       </div>
     </section>
 
+    <section class="keep">
+      <h2 class="display">neem de kernpunten mee.</h2>
+      <p>Stuur ze door aan een collega, of bewaar ze voor later.</p>
+      <div class="keep-actions">
+        <button type="button" class="btn" id="share">Deel met een collega</button>
+        <a class="btn btn-ghost" href="kernpunten-ynzo.pdf" download>Download als PDF</a>
+      </div>
+      <p class="keep-status" id="share-status" role="status" hidden></p>
+    </section>
+
     <footer class="contact">
       <h2 class="display">ook een inspiratiesessie voor jouw bedrijf? neem contact op</h2>
       <div class="contact-row">
@@ -136,5 +146,37 @@
     </footer>
 
   </main>
+
+  <script>
+    (function () {
+      var button = document.getElementById("share");
+      var status = document.getElementById("share-status");
+      var url = location.origin + "/samenvatting/";
+      var data = {
+        title: "De keynote in een notendop",
+        text: "De kernpunten van de keynote van Ynzo over bevlogen teams. De moeite waard:",
+        url: url
+      };
+
+      function show(message) {
+        status.textContent = message;
+        status.hidden = false;
+      }
+
+      button.addEventListener("click", function () {
+        if (navigator.share) {
+          navigator.share(data).catch(function () {});
+          return;
+        }
+        if (navigator.clipboard) {
+          navigator.clipboard.writeText(url).then(function () {
+            show("Link gekopieerd. Plak hem in een mail of app.");
+          }, function () { show(url); });
+        } else {
+          show(url);
+        }
+      });
+    })();
+  </script>
 </body>
 </html>

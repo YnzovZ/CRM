@@ -118,6 +118,33 @@ a { color: inherit; text-decoration: none; }
 .numbers-row strong { font-family: var(--display); font-weight: 800; font-size: clamp(40px, 12vw, 52px); line-height: 0.85; letter-spacing: -0.035em; }
 .numbers-row span { font-weight: 700; font-size: 16px; line-height: 1.25; }
 
+/* Bewaren en delen */
+.keep { padding: 28px var(--pad) 8px; display: flex; flex-direction: column; gap: 12px; }
+.keep h2 { font-size: clamp(30px, 8.6vw, 38px); }
+.keep > p { font-weight: 700; font-size: 17px; line-height: 1.3; }
+.keep-actions { display: flex; flex-direction: column; gap: 10px; margin-top: 4px; }
+.btn {
+  display: block;
+  width: 100%;
+  padding: 16px 20px;
+  border: 2px solid var(--ink);
+  border-radius: 14px;
+  background: var(--orange);
+  color: var(--ink);
+  font: inherit;
+  font-family: var(--display);
+  font-weight: 800;
+  font-size: 19px;
+  text-align: center;
+  cursor: pointer;
+}
+.btn-ghost { background: transparent; }
+.keep-status { font-size: 15px; word-break: break-all; }
+
+@media print {
+  .keep { display: none; }
+}
+
 /* Contact */
 .contact { padding: 28px var(--pad) calc(32px + env(safe-area-inset-bottom)); display: flex; flex-direction: column; gap: 18px; }
 .contact h2 { font-size: clamp(28px, 8vw, 34px); line-height: 0.95; }
