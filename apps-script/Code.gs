@@ -7,6 +7,13 @@ var HEADERS = ["Tijdstip", "Event", "Cijfer", "Waarom", "Interesse in talk", "E-
 // Vul je eigen adres in om bij elke lead een mail te krijgen. Leeg laten = geen mail.
 var NOTIFY_EMAIL = "";
 
+// Open de web-app-URL in je browser om te zien welke versie live staat.
+var SCRIPT_VERSION = "3 (met organisatie)";
+
+function doGet() {
+  return respond({ ok: true, versie: SCRIPT_VERSION });
+}
+
 function doPost(e) {
   var lock = LockService.getScriptLock();
   lock.waitLock(10000);
