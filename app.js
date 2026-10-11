@@ -72,7 +72,8 @@
       score: Number(checked.value),
       reason: document.getElementById("reason").value.trim(),
       interest: interest.checked,
-      email: interest.checked ? email.value.trim() : ""
+      email: interest.checked ? email.value.trim() : "",
+      organisation: interest.checked ? document.getElementById("organisation").value.trim() : ""
     };
 
     submit.disabled = true;

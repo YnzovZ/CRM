@@ -2,7 +2,7 @@
 // Elke inzending wordt een nieuwe rij in het tabblad "Feedback".
 
 var SHEET_NAME = "Feedback";
-var HEADERS = ["Tijdstip", "Event", "Cijfer", "Waarom", "Interesse in talk", "E-mail"];
+var HEADERS = ["Tijdstip", "Event", "Cijfer", "Waarom", "Interesse in talk", "E-mail", "Organisatie"];
 
 // Vul je eigen adres in om bij elke lead een mail te krijgen. Leeg laten = geen mail.
 var NOTIFY_EMAIL = "";
@@ -22,18 +22,20 @@ function doPost(e) {
       score,
       clean(data.reason, 2000),
       data.interest ? "Ja" : "Nee",
-      clean(data.email, 320)
+      clean(data.email, 320),
+      clean(data.organisation, 200)
     ];
     sheet.appendRow(row);
 
     if (data.interest && NOTIFY_EMAIL) {
       MailApp.sendEmail({
         to: NOTIFY_EMAIL,
-        subject: "Nieuwe lead na keynote: " + row[5],
+        subject: "Nieuwe lead na keynote: " + (row[6] || row[5]),
         body: [
           "Event: " + row[1],
           "Cijfer: " + row[2],
           "E-mail: " + row[5],
+          "Organisatie: " + row[6],
           "",
           "Waarom dit cijfer:",
           row[3]
@@ -57,6 +59,11 @@ function getSheet() {
     sheet.appendRow(HEADERS);
     sheet.setFrozenRows(1);
   }
+  // Vult kopjes aan als er later kolommen bij zijn gekomen.
+  var current = sheet.getRange(1, 1, 1, HEADERS.length).getValues()[0];
+  HEADERS.forEach(function (h, i) {
+    if (!current[i]) sheet.getRange(1, i + 1).setValue(h);
+  });
   return sheet;
 }
 
