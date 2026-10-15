@@ -7,11 +7,32 @@ var HEADERS = ["Tijdstip", "Event", "Cijfer", "Waarom", "Interesse in talk", "E-
 // Vul je eigen adres in om bij elke lead een mail te krijgen. Leeg laten = geen mail.
 var NOTIFY_EMAIL = "";
 
-// Open de web-app-URL in je browser om te zien welke versie live staat.
-var SCRIPT_VERSION = "3 (met organisatie)";
+// Geheime sleutel voor je dashboard. Verzin zelf een lange code (minimaal 16 tekens)
+// en vul die hieronder in. Leeg laten = dashboard staat uit.
+var DASHBOARD_KEY = "";
 
-function doGet() {
-  return respond({ ok: true, versie: SCRIPT_VERSION });
+// Open de web-app-URL in je browser om te zien welke versie live staat.
+var SCRIPT_VERSION = "4 (met dashboard)";
+
+function doGet(e) {
+  var key = e && e.parameter && e.parameter.key;
+  if (!key) return respond({ ok: true, versie: SCRIPT_VERSION });
+  if (!DASHBOARD_KEY || DASHBOARD_KEY.length < 16 || key !== DASHBOARD_KEY) {
+    return respond({ ok: false, error: "geen toegang" });
+  }
+  var values = getSheet().getDataRange().getValues();
+  var rows = values.slice(1).filter(function (r) { return r[0] instanceof Date; }).map(function (r) {
+    return {
+      tijd: r[0].toISOString(),
+      event: String(r[1] || ""),
+      cijfer: Number(r[2]),
+      waarom: String(r[3] || ""),
+      interesse: r[4] === "Ja",
+      email: String(r[5] || ""),
+      organisatie: String(r[6] || "")
+    };
+  });
+  return respond({ ok: true, versie: SCRIPT_VERSION, rows: rows });
 }
 
 function doPost(e) {

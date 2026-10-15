@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#0A0A0A">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Feedback">
+  <title>Feedback</title>
+  <link rel="manifest" href="/dashboard/manifest.webmanifest">
+  <link rel="apple-touch-icon" href="/dashboard/icon-180.png">
+  <link rel="icon" href="/dashboard/icon-192.png">
+  <link rel="stylesheet" href="/dashboard/dashboard.css">
+</head>
+<body>
+  <main class="app">
+
+    <section id="login" class="login" hidden>
+      <img src="/samenvatting/assets/logo.svg" alt="ynzo." class="login-logo">
+      <h1>jouw feedback</h1>
+      <p>Vul je dashboardsleutel in. Dit hoef je maar één keer te doen op dit toestel.</p>
+      <form id="login-form">
+        <label for="key">Dashboardsleutel</label>
+        <input type="password" id="key" autocomplete="current-password" required>
+        <button type="submit" class="btn">Openen</button>
+        <p class="error" id="login-error" hidden></p>
+      </form>
+    </section>
+
+    <section id="dash" hidden>
+      <header class="top">
+        <button type="button" class="nav" id="prev" aria-label="Vorige dag">&lsaquo;</button>
+        <div class="day">
+          <div class="day-label" id="day-label"></div>
+          <div class="day-event" id="day-event"></div>
+        </div>
+        <button type="button" class="nav" id="next" aria-label="Volgende dag">&rsaquo;</button>
+      </header>
+
+      <div class="hero">
+        <div class="hero-label">gemiddeld cijfer</div>
+        <div class="hero-number" id="avg"></div>
+        <div class="hero-meta" id="meta"></div>
+        <div class="dist" id="dist" role="img"></div>
+        <div class="dist-axis" aria-hidden="true"><span>1</span><span>10</span></div>
+      </div>
+
+      <section class="leads" id="leads-wrap" hidden>
+        <h2>interesse in een sessie</h2>
+        <ul id="leads" class="leads-list"></ul>
+      </section>
+
+      <section class="feedback">
+        <h2>wat mensen zeiden</h2>
+        <ul id="list" class="list"></ul>
+        <p class="silent" id="silent" hidden></p>
+      </section>
+
+      <footer class="foot">
+        <button type="button" class="btn btn-ghost" id="refresh">Vernieuwen</button>
+        <p class="updated" id="updated"></p>
+        <button type="button" class="link" id="logout">Sleutel wissen op dit toestel</button>
+      </footer>
+    </section>
+
+    <p id="status" class="status" role="status"></p>
+  </main>
+
+  <script src="/config.js"></script>
+  <script src="/dashboard/dashboard.js"></script>
+</body>
+</html>
