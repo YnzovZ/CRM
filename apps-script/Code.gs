@@ -12,7 +12,7 @@ var NOTIFY_EMAIL = "";
 var DASHBOARD_KEY = "";
 
 // Open de web-app-URL in je browser om te zien welke versie live staat.
-var SCRIPT_VERSION = "4 (met dashboard)";
+var SCRIPT_VERSION = "5 (dashboard, robuust)";
 
 function doGet(e) {
   var key = e && e.parameter && e.parameter.key;
@@ -21,18 +21,22 @@ function doGet(e) {
     return respond({ ok: false, error: "geen toegang" });
   }
   var values = getSheet().getDataRange().getValues();
-  var rows = values.slice(1).filter(function (r) { return r[0] instanceof Date; }).map(function (r) {
-    return {
-      tijd: r[0].toISOString(),
+  var rows = [];
+  values.slice(1).forEach(function (r) {
+    var tijd = toDate(r[0]);
+    var cijfer = Number(r[2]);
+    if (!tijd || !(cijfer >= 1 && cijfer <= 10)) return;
+    rows.push({
+      tijd: tijd.toISOString(),
       event: String(r[1] || ""),
-      cijfer: Number(r[2]),
+      cijfer: cijfer,
       waarom: String(r[3] || ""),
-      interesse: r[4] === "Ja",
+      interesse: String(r[4]).trim().toLowerCase() === "ja",
       email: String(r[5] || ""),
       organisatie: String(r[6] || "")
-    };
+    });
   });
-  return respond({ ok: true, versie: SCRIPT_VERSION, rows: rows });
+  return respond({ ok: true, versie: SCRIPT_VERSION, rows: rows, aantalRijen: Math.max(values.length - 1, 0) });
 }
 
 function doPost(e) {
@@ -93,6 +97,20 @@ function getSheet() {
     if (!current[i]) sheet.getRange(1, i + 1).setValue(h);
   });
   return sheet;
+}
+
+// Zet een cel om naar een datum, ook als Sheets hem als tekst of getal teruggeeft.
+function toDate(v) {
+  if (Object.prototype.toString.call(v) === "[object Date]") return isNaN(v.getTime()) ? null : v;
+  if (typeof v === "number") return new Date(Math.round((v - 25569) * 86400000));
+  if (v) {
+    // Nederlandse notatie, bijvoorbeeld 15-10-2026 18:30:05
+    var m = String(v).match(/^(\d{1,2})[-\/.](\d{1,2})[-\/.](\d{4})(?:[ T](\d{1,2}):(\d{2})(?::(\d{2}))?)?/);
+    if (m) return new Date(+m[3], m[2] - 1, +m[1], +(m[4] || 0), +(m[5] || 0), +(m[6] || 0));
+    var d = new Date(v);
+    return isNaN(d.getTime()) ? null : d;
+  }
+  return null;
 }
 
 // Kapt lengte af en voorkomt dat tekst als formule in de sheet wordt uitgevoerd.

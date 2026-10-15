@@ -98,9 +98,10 @@
           return;
         }
         if (!data.rows) {
-          showLogin("Het script in Google is nog niet bijgewerkt naar de dashboardversie. Nu live: versie " + (data.versie || "onbekend") + ". Nodig: versie 4.");
+          showLogin("Het script in Google is nog niet bijgewerkt naar de dashboardversie. Nu live: versie " + (data.versie || "onbekend") + ". Nodig: versie 5.");
           return;
         }
+        state.sheetRows = data.aantalRijen || 0;
         state.rows = data.rows.map(function (r) { r.date = new Date(r.tijd); r.day = dayKey(r.date); return r; });
         var seen = {};
         state.days = state.rows.map(function (r) { return r.day; })
@@ -136,7 +137,9 @@
       $("day-label").textContent = "Nog geen reacties";
       $("day-event").textContent = "";
       $("avg").textContent = "-";
-      $("meta").textContent = "Zodra iemand het formulier invult, zie je het hier.";
+      $("meta").textContent = state.sheetRows
+        ? "Het script ziet " + state.sheetRows + " rijen in je sheet, maar kan ze niet lezen. Stuur Claude een screenshot van je sheet."
+        : "Zodra iemand het formulier invult, zie je het hier.";
       $("dist").innerHTML = "";
       $("leads-wrap").hidden = true;
       $("list").innerHTML = "";
