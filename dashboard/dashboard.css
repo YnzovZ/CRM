@@ -86,7 +86,7 @@ h2 { font-family: var(--display); font-weight: 800; font-size: 26px; letter-spac
 .dist-axis span:last-child { grid-column: 10; text-align: center; }
 
 /* Leads */
-.leads { margin: 24px 16px 0; }
+.leads { margin: 36px 16px 0; }
 .leads-list, .list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
 .lead {
   background: var(--peach); border-radius: 16px; padding: 14px 16px;
@@ -97,7 +97,7 @@ h2 { font-family: var(--display); font-weight: 800; font-size: 26px; letter-spac
 .lead-meta { font-size: 14px; color: var(--muted); }
 
 /* Feedback */
-.feedback { margin: 28px 16px 0; }
+.feedback { margin: 24px 16px 0; }
 .item { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 14px 16px; display: flex; gap: 14px; align-items: flex-start; }
 .score {
   flex: none; width: 44px; height: 44px; border-radius: 12px;
