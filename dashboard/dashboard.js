@@ -4,7 +4,27 @@
   var STORE = "ynzo-dashboard-key";
 
   var $ = function (id) { return document.getElementById(id); };
-  var state = { rows: [], days: [], index: 0 };
+  var state = { rows: [], days: [], index: 0, talk: -1 };
+
+  // Een nieuwe talk begint na een gat van meer dan 90 minuten, mits er daarna
+  // minstens 3 reacties volgen. Losse nakomers tellen mee bij de talk ervoor.
+  var GAP_MS = 90 * 60 * 1000;
+  var MIN_TALK = 3;
+
+  function splitTalks(rows) {
+    var sorted = rows.slice().sort(function (a, b) { return a.date - b.date; });
+    var groups = [];
+    sorted.forEach(function (r, i) {
+      if (!i || r.date - sorted[i - 1].date > GAP_MS) groups.push([]);
+      groups[groups.length - 1].push(r);
+    });
+    var talks = [];
+    groups.forEach(function (g) {
+      if (talks.length && g.length < MIN_TALK) talks[talks.length - 1] = talks[talks.length - 1].concat(g);
+      else talks.push(g);
+    });
+    return talks;
+  }
 
   // Opslag kan ontbreken (privévenster), dus altijd in try/catch.
   function getKey() { try { return localStorage.getItem(STORE) || ""; } catch (e) { return ""; } }
@@ -58,6 +78,7 @@
     var i = state.index + step;
     if (i < 0 || i >= state.days.length) return;
     state.index = i;
+    state.talk = -1;
     render();
     window.scrollTo(0, 0);
   }
@@ -87,6 +108,7 @@
           .sort().reverse();
         var keep = keepDay && current ? state.days.indexOf(current) : -1;
         state.index = keep >= 0 ? keep : 0;
+        if (keep < 0) state.talk = -1;
         $("updated").textContent = "Bijgewerkt om " + timeFmt.format(new Date());
         $("login").hidden = true;
         $("dash").hidden = false;
@@ -122,8 +144,11 @@
       return;
     }
 
-    var rows = state.rows.filter(function (r) { return r.day === day; })
-      .sort(function (a, b) { return b.date - a.date; });
+    var dayRows = state.rows.filter(function (r) { return r.day === day; });
+    var talks = splitTalks(dayRows);
+    if (state.talk < 0 || state.talk >= talks.length) state.talk = talks.length - 1;
+    renderTalks(talks);
+    var rows = talks[state.talk].slice().sort(function (a, b) { return b.date - a.date; });
 
     var label = labelFmt.format(rows[0].date);
     $("day-label").textContent = (day === dayKey(new Date()) ? "vandaag, " : "") + label;
@@ -187,6 +212,22 @@
     var silent = rows.length - withText.length;
     $("silent").hidden = !silent || !withText.length;
     $("silent").textContent = silent + (silent === 1 ? " persoon gaf" : " mensen gaven") + " alleen een cijfer.";
+  }
+
+  function renderTalks(talks) {
+    var bar = $("talks");
+    bar.innerHTML = "";
+    bar.hidden = talks.length < 2;
+    if (talks.length < 2) return;
+    talks.forEach(function (t, i) {
+      var b = el("button", "talk", "Talk " + (i + 1));
+      b.type = "button";
+      b.setAttribute("role", "tab");
+      b.setAttribute("aria-selected", String(i === state.talk));
+      b.appendChild(el("small", null, timeFmt.format(t[0].date) + " uur, " + t.length + (t.length === 1 ? " reactie" : " reacties")));
+      b.addEventListener("click", function () { state.talk = i; render(); });
+      bar.appendChild(b);
+    });
   }
 
   load();

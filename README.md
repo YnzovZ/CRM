@@ -52,3 +52,5 @@ Elke ochtend controleert een geplande Claude-taak of het artifact in `samenvatti
 ## Dashboard
 
 `/dashboard/` laat per dag het gemiddelde cijfer, de verdeling, de leads en alle toelichtingen zien. De gegevens komen uit dezelfde Google Sheet, via het Apps Script, en zijn afgeschermd met `DASHBOARD_KEY` in `apps-script/Code.gs`. Vul daar zelf een lange sleutel in (minimaal 16 tekens) en implementeer opnieuw via Implementaties beheren. Op je telefoon open je `/dashboard/`, vul je de sleutel één keer in en zet je de pagina op je beginscherm.
+
+Meerdere talks op één dag splitst het dashboard vanzelf: na een gat van meer dan 90 minuten tussen reacties begint een nieuwe talk, mits daarna minstens 3 reacties volgen. Losse nakomers tellen mee bij de talk ervoor.

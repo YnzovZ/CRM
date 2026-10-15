@@ -69,6 +69,17 @@ h2 { font-family: var(--display); font-weight: 800; font-size: 26px; letter-spac
 .day-event { font-size: 13px; color: #B5B5AE; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .day-event:empty { display: none; }
 
+/* Meerdere talks op één dag */
+.talks { display: flex; gap: 8px; overflow-x: auto; padding: 4px 16px 8px; background: var(--ink); scrollbar-width: none; }
+.talks::-webkit-scrollbar { display: none; }
+.talk {
+  flex: none; min-height: 44px; padding: 8px 14px; border-radius: 999px;
+  border: 2px solid rgba(250, 248, 236, .35); background: transparent; color: var(--paper);
+  font: 700 15px/1.15 var(--body); cursor: pointer; text-align: left;
+}
+.talk small { display: block; font-weight: 500; font-size: 12px; opacity: .75; }
+.talk[aria-selected="true"] { background: var(--mint); border-color: var(--mint); color: var(--ink); }
+
 /* Grote cijfer */
 .hero { background: var(--ink); color: var(--paper); padding: 20px 20px 24px; border-radius: 0 0 24px 24px; }
 .hero-label, .hero-number, .hero-meta { text-align: center; }
