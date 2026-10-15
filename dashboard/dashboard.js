@@ -98,7 +98,7 @@
           return;
         }
         if (!data.rows) {
-          showLogin("Het script in Google is nog niet bijgewerkt naar de dashboardversie.");
+          showLogin("Het script in Google is nog niet bijgewerkt naar de dashboardversie. Nu live: versie " + (data.versie || "onbekend") + ". Nodig: versie 4.");
           return;
         }
         state.rows = data.rows.map(function (r) { r.date = new Date(r.tijd); r.day = dayKey(r.date); return r; });
