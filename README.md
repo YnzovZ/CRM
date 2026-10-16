@@ -105,3 +105,7 @@ Rijen gaan nooit echt weg, maar naar het tabblad **Archief**, met datum en reden
 - `opschonen` (eenmalig, vanuit de editor) maakt eerst een kopie van het tabblad CRM en archiveert daarna lege aanvragen, bureau-rondmails zonder klantgegevens en Tony's-regels zonder organisatie en e-mail. Dubbele rijen (zelfde organisatie en talkdatum) voegt hij samen.
 
 Het script zoekt kolommen op naam, dus je mag kolommen verschuiven of toevoegen. Hernoem ze niet.
+
+### Code bijwerken met één klik
+
+`apps-script/Updater.gs` haalt de nieuwste scriptbestanden uit deze repo en zet ze live, met dezelfde web-app-URL. In de sheet staat daarvoor het menu **Ynzo > Code bijwerken vanuit GitHub**. Het draait alleen als je zelf klikt. Eenmalig nodig: Apps Script API aan (script.google.com/home/usersettings), `appsscript.json` uit de repo in het project zetten, en `bijwerken` één keer vanuit de editor draaien voor toestemming.

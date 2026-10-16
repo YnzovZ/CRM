@@ -3,7 +3,9 @@
 //
 // Eenmalig nodig:
 //  1. Zet de Apps Script API aan op https://script.google.com/home/usersettings
-//  2. Draai bijwerken() één keer vanuit de editor en geef toestemming.
+//  2. Zet in Projectinstellingen "appsscript.json weergeven" aan en vervang dat
+//     bestand door apps-script/appsscript.json uit de repo (de rechten die nodig zijn).
+//  3. Draai bijwerken() één keer vanuit de editor en geef toestemming.
 // Daarna via het menu "Ynzo" in je sheet: één klik, en jij bepaalt wanneer.
 
 var GITHUB_BRON = "https://raw.githubusercontent.com/YnzovZ/CRM/claude/keynote-feedback-qr-0qna9k/apps-script/";
@@ -12,8 +14,19 @@ var API = "https://script.googleapis.com/v1/projects/";
 
 function onOpen() {
   SpreadsheetApp.getUi().createMenu("Ynzo")
-    .addItem("Code bijwerken vanuit GitHub", "bijwerken")
+    .addItem("Code bijwerken vanuit GitHub", "bijwerkenMenu")
     .addToUi();
+}
+
+// Via het menu: laat in een venstertje zien hoe het ging.
+function bijwerkenMenu() {
+  var ui = SpreadsheetApp.getUi();
+  try {
+    var uitkomst = bijwerken();
+    ui.alert(uitkomst === "al bijgewerkt" ? "Alles is al bijgewerkt." : "Bijgewerkt en live gezet (" + uitkomst + ").");
+  } catch (err) {
+    ui.alert("Bijwerken lukte niet:\n\n" + err.message);
+  }
 }
 
 function bijwerken() {
