@@ -2,7 +2,7 @@
 // Elke inzending wordt een nieuwe rij in het tabblad "Feedback".
 
 var SHEET_NAME = "Feedback";
-var HEADERS = ["Tijdstip", "Event", "Cijfer", "Waarom", "Interesse in talk", "E-mail", "Organisatie", "Contact gehad"];
+var HEADERS = ["Tijdstip", "Event", "Cijfer", "Waarom", "Interesse in talk", "E-mail", "Organisatie", "Contact gehad", "Gemaild"];
 
 // Tabblad met je talks: welke QR-code bij welke hand-out hoort.
 var TALKS_SHEET = "Talks";
@@ -22,7 +22,7 @@ var NOTIFY_EMAIL = "";
 var DASHBOARD_KEY = "";
 
 // Open de web-app-URL in je browser om te zien welke versie live staat.
-var SCRIPT_VERSION = "9 (contact afvinken)";
+var SCRIPT_VERSION = "10 (gmail onthouden)";
 
 function doGet(e) {
   var p = (e && e.parameter) || {};
@@ -64,9 +64,11 @@ function doGet(e) {
     var cijfer = Number(r[2]);
     if (!tijd || !(cijfer >= 1 && cijfer <= 10)) return;
     var contact = toDate(r[7]);
+    var gemaild = toDate(r[8]);
     rows.push({
       rij: i + 2,
       contact: contact ? contact.toISOString() : (r[7] ? String(r[7]) : ""),
+      gemaild: gemaild ? gemaild.toISOString() : "",
       tijd: tijd.toISOString(),
       event: String(r[1] || ""),
       cijfer: cijfer,
@@ -171,21 +173,25 @@ function getAgenda() {
 // dezelfde reactie is (tijdstip), zodat sorteren in de sheet geen kwaad kan.
 function setContact(p) {
   var sheet = getSheet();
-  var rij = Number(p.rij);
-  var values = sheet.getDataRange().getValues();
-  var find = function (n) {
-    var r = values[n - 1];
-    var t = r && toDate(r[0]);
-    return t && t.toISOString() === p.tijd;
-  };
-  if (!(rij >= 2 && find(rij))) {
-    rij = 0;
-    for (var i = 2; i <= values.length; i++) if (find(i)) { rij = i; break; }
-  }
+  var rij = findRow(sheet.getDataRange().getValues(), p.rij, p.tijd);
   if (!rij) return { ok: false, error: "reactie niet gevonden" };
   var value = p.value === "1" ? new Date() : "";
   sheet.getRange(rij, 8).setValue(value);
   return { ok: true, rij: rij, contact: value ? value.toISOString() : "" };
+}
+
+// Zoekt de rij van een reactie: eerst op het opgegeven rijnummer, en klopt het
+// tijdstip daar niet (sheet gesorteerd), dan in de hele sheet.
+function findRow(values, rij, tijd) {
+  var match = function (n) {
+    var r = values[n - 1];
+    var t = r && toDate(r[0]);
+    return t && t.toISOString() === tijd;
+  };
+  rij = Number(rij);
+  if (rij >= 2 && match(rij)) return rij;
+  for (var i = 2; i <= values.length; i++) if (match(i)) return i;
+  return 0;
 }
 
 // Is er sinds de reactie een mail naar deze lead verstuurd? Kijkt alleen in je
@@ -194,6 +200,7 @@ function mailedSince(leadsJson) {
   var leads = [];
   try { leads = JSON.parse(leadsJson || "[]"); } catch (e) { leads = []; }
   var out = {};
+  var sheet = null, values = null;
   leads.slice(0, 50).forEach(function (l) {
     var email = String(l.email || "").trim().toLowerCase();
     if (!/^[^\s@"()<>,;:]+@[^\s@"()<>,;:]+\.[a-z]{2,}$/.test(email)) return;
@@ -208,6 +215,12 @@ function mailedSince(leadsJson) {
       });
     });
     out[email] = latest ? latest.toISOString() : null;
+    // Gevonden? Dan onthouden in de kolom Gemaild, zodat we niet opnieuw zoeken.
+    if (latest && l.tijd) {
+      if (!sheet) { sheet = getSheet(); values = sheet.getDataRange().getValues(); }
+      var rij = findRow(values, l.rij, l.tijd);
+      if (rij) sheet.getRange(rij, 9).setValue(latest);
+    }
   });
   return out;
 }

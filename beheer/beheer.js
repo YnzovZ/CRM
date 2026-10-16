@@ -65,6 +65,8 @@
         if (!data.talks) { showLogin("Het script in Google is nog niet bijgewerkt. Nu live: versie " + (data.versie || "onbekend") + ". Nodig: versie 6."); return; }
         state.talks = data.talks;
         state.rows = data.rows || [];
+        // Wat al gevonden is staat in de sheet (kolom Gemaild); de rest checken we opnieuw.
+        state.mailed = {};
         $("login").hidden = true;
         $("app").hidden = false;
         status("");
@@ -461,6 +463,11 @@
       lw.appendChild(el("h3", null, "leads"));
       var ul = el("ul");
       var ask = [];
+      // Al gevonden in een eerdere check (kolom Gemaild)? Dan niet opnieuw zoeken.
+      leads.forEach(function (r) {
+        var k = (r.email || "").toLowerCase();
+        if (k && r.gemaild && !state.mailed[k]) state.mailed[k] = r.gemaild;
+      });
       leads.forEach(function (r) {
         var li = el("li", "fb-lead-item");
         var who = el("div", "fb-lead-who");
@@ -475,6 +482,9 @@
         var right = el("div", "fb-lead-status");
         var st = el("div", "fb-mail");
         var key = (r.email || "").toLowerCase();
+        // Contact gehad? Dan hoeft Gmail ook niet.
+        if (key && !(key in state.mailed) && !r.contact && !ask.some(function (l) { return l.email === key; })) ask.push({ email: key, since: r.tijd, rij: r.rij, tijd: r.tijd });
+        if (key && r.contact && !(key in state.mailed)) state.mailed[key] = null;
         st.setAttribute("data-email", key);
         st._row = r;
         paintMail(st, key);
@@ -491,6 +501,11 @@
             if (!data.ok) { cb.checked = !on; status("Opslaan mislukt: " + data.error); return; }
             r.contact = data.contact;
             if (data.rij) r.rij = data.rij;
+            // Vinkje weg en nooit in Gmail gezocht? Dan nu alsnog.
+            if (!on && key && state.mailed[key] === null && !r.gemaild) {
+              delete state.mailed[key];
+              checkMail([{ email: key, since: r.tijd, rij: r.rij, tijd: r.tijd }]);
+            }
             paintMail(st, key);
             status(on ? "Contact gehad opgeslagen." : "Vinkje weggehaald.");
           }).catch(function () { cb.disabled = false; cb.checked = !on; status("Opslaan mislukt. Check je verbinding."); });
@@ -504,7 +519,6 @@
         right.appendChild(lab);
         li.appendChild(right);
         ul.appendChild(li);
-        if (key && !(key in state.mailed)) ask.push({ email: key, since: r.tijd });
       });
       lw.appendChild(ul);
       wrap.appendChild(lw);
