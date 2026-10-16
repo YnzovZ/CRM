@@ -1,4 +1,4 @@
-// Houdt het tabblad "Kansen" bij. Zet dit als derde bestand in je Apps Script-project
+// Houdt het tabblad "CRM" bij. Zet dit als derde bestand in je Apps Script-project
 // (Bestanden > + > Script, naam "CRM") en draai één keer installeerDagelijks().
 //
 // - Een QR-reactie met interesse wordt vanzelf een kans met status "lead".
@@ -7,7 +7,7 @@
 //
 // Elke rij onthoudt zijn bron in "Bron-ID". Wat er al staat, komt er nooit dubbel in.
 
-var KANSEN_SHEET = "Kansen";
+var KANSEN_SHEET = "CRM";
 var KANSEN_HEADERS = ["ID", "Status", "Soort", "Spreker", "Datum aanvraag", "Datum talk", "Tijdstip", "Organisatie",
   "Contactpersoon", "E-mail", "Telefoon", "Via bureau", "Bureau contactpersoon", "Bureau e-mail", "Locatie", "Land",
   "Taal", "Deelnemers", "Type publiek", "Bedrag excl", "Factuurnummer", "Talkcode", "Reden", "Notities", "Opmerkingen",

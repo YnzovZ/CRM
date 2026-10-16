@@ -140,7 +140,7 @@ function saveTalk(p) {
       }
     }
     sheet.appendRow(row);
-    // Interesse? Dan ook als lead in het CRM (tabblad Kansen, zie CRM.gs).
+    // Interesse? Dan ook als lead in het CRM (tabblad CRM, zie CRM.gs).
     if (data.interest && typeof kansVanLead === "function") {
       try { kansVanLead(row); } catch (err) { console.error(err); }
     }

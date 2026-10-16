@@ -83,7 +83,7 @@ Gevonden is gevonden: vindt het script een verzonden mail, dan zet het de datum 
 
 ## CRM
 
-Alle talks, aanvragen en leads staan onder elkaar in het tabblad **Kansen**: één rij per kans, van lead of aanvraag tot gegeven talk. Kolommen: ID, Status, Soort, Spreker, Datum aanvraag, Datum talk, Tijdstip, Organisatie, Contactpersoon, E-mail, Telefoon, Via bureau, Bureau contactpersoon, Bureau e-mail, Locatie, Land, Taal, Deelnemers, Type publiek, Bedrag excl, Factuurnummer, Talkcode, Reden, Notities, Opmerkingen, Periode, Bron, Bron-ID.
+Alle talks, aanvragen en leads staan onder elkaar in het tabblad **CRM**: één rij per kans, van lead of aanvraag tot gegeven talk. Kolommen: ID, Status, Soort, Spreker, Datum aanvraag, Datum talk, Tijdstip, Organisatie, Contactpersoon, E-mail, Telefoon, Via bureau, Bureau contactpersoon, Bureau e-mail, Locatie, Land, Taal, Deelnemers, Type publiek, Bedrag excl, Factuurnummer, Talkcode, Reden, Notities, Opmerkingen, Periode, Bron, Bron-ID.
 
 Status is een van: lead, aanvraag, optie, geboekt, gegeven, afgewezen, geannuleerd, verlopen, onbekend.
 
@@ -95,4 +95,4 @@ Elke rij onthoudt waar hij vandaan komt (Bron en Bron-ID). Zo kan een import opn
 
 ### Bijhouden
 
-`apps-script/CRM.gs` houdt Kansen daarna zelf bij. Een QR-reactie met interesse wordt een lead. Elke ochtend om 6 uur komen nieuwe afspraken met "talk" uit je agenda erbij als "geboekt", en gaan geboekte talks met een datum in het verleden naar "gegeven". Eenmalig nodig: draai `installeerDagelijks` in de editor.
+`apps-script/CRM.gs` houdt het tabblad CRM daarna zelf bij. Een QR-reactie met interesse wordt een lead. Elke ochtend om 6 uur komen nieuwe afspraken met "talk" uit je agenda erbij als "geboekt", en gaan geboekte talks met een datum in het verleden naar "gegeven". Eenmalig nodig: draai `installeerDagelijks` in de editor.
