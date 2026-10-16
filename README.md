@@ -72,3 +72,7 @@ Alle schermen praten via `lib/api.js` met de opslag. Gaat het systeem later naar
 ### Agenda
 
 Het blok "aankomend in je agenda" toont afspraken uit Google Agenda met het woord "talk" in de beschrijving of titel, voor de komende 6 maanden (`CALENDAR_ID`, `TALK_WORD` en `AGENDA_DAYS` in `apps-script/Code.gs`). Met "QR maken" wordt de talk voorgevuld en gekoppeld aan de afspraak (kolom "Agenda-ID" in het tabblad Talks). Eenmalig nodig: draai `testAgenda` in de Apps Script-editor om toegang tot je agenda te geven.
+
+### Leads en Gmail
+
+In een opengeklapte talk staan de leads bovenaan. Per lead kijkt het script in je verzonden Gmail of er sinds de reactie een mail naar dat adres is gegaan: groen "gemaild" met datum, of "nog niet gemaild". Eenmalig nodig: draai `testGmail` in de Apps Script-editor om toegang te geven. Het script leest alleen verzonden mail en zoekt alleen op de e-mailadressen van leads.

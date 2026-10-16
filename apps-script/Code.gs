@@ -22,7 +22,7 @@ var NOTIFY_EMAIL = "";
 var DASHBOARD_KEY = "";
 
 // Open de web-app-URL in je browser om te zien welke versie live staat.
-var SCRIPT_VERSION = "7 (agenda)";
+var SCRIPT_VERSION = "8 (gmail-check)";
 
 function doGet(e) {
   var p = (e && e.parameter) || {};
@@ -41,6 +41,13 @@ function doGet(e) {
   if (p.action === "saveTalk") return respond(saveTalk(p));
   if (p.action === "deleteTalk") return respond(deleteTalk(p.code));
   if (p.action === "talks") return respond({ ok: true, versie: SCRIPT_VERSION, talks: getTalks() });
+  if (p.action === "mailed") {
+    try {
+      return respond({ ok: true, versie: SCRIPT_VERSION, mailed: mailedSince(p.leads) });
+    } catch (err) {
+      return respond({ ok: false, error: "gmail: " + String(err) });
+    }
+  }
   if (p.action === "agenda") {
     try {
       return respond({ ok: true, versie: SCRIPT_VERSION, agenda: getAgenda() });
@@ -154,6 +161,35 @@ function getAgenda() {
       locatie: ev.getLocation() || ""
     };
   });
+}
+
+// Is er sinds de reactie een mail naar deze lead verstuurd? Kijkt alleen in je
+// verzonden mail. leads = JSON-lijst van { email, since (ISO-datum) }.
+function mailedSince(leadsJson) {
+  var leads = [];
+  try { leads = JSON.parse(leadsJson || "[]"); } catch (e) { leads = []; }
+  var out = {};
+  leads.slice(0, 50).forEach(function (l) {
+    var email = String(l.email || "").trim().toLowerCase();
+    if (!/^[^\s@"()<>,;:]+@[^\s@"()<>,;:]+\.[a-z]{2,}$/.test(email)) return;
+    var since = new Date(l.since);
+    if (isNaN(since.getTime())) return;
+    var q = "in:sent to:" + email + " after:" + Math.floor(since.getTime() / 1000);
+    var latest = null;
+    GmailApp.search(q, 0, 10).forEach(function (thread) {
+      thread.getMessages().forEach(function (m) {
+        var to = (m.getTo() + "," + m.getCc() + "," + m.getBcc()).toLowerCase();
+        if (m.getDate() > since && to.indexOf(email) >= 0 && (!latest || m.getDate() > latest)) latest = m.getDate();
+      });
+    });
+    out[email] = latest ? latest.toISOString() : null;
+  });
+  return out;
+}
+
+// Draai deze functie één keer in de editor om Google toegang tot je Gmail te geven.
+function testGmail() {
+  Logger.log(GmailApp.search("in:sent", 0, 1).length + " verzonden gesprek(ken) gevonden. Toegang werkt.");
 }
 
 // Draai deze functie één keer in de editor om Google toegang tot je agenda te geven.

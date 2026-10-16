@@ -144,3 +144,20 @@ input:focus, select:focus { outline: 3px solid var(--orange); outline-offset: 1p
 @media (max-width: 860px) {
   .fb-top { grid-template-columns: 1fr; }
 }
+
+/* Leads in de opengeklapte talk */
+.fb-leads { background: var(--card); border: 2px solid var(--ink); border-radius: 14px; padding: 16px 18px; margin-bottom: 16px; }
+.fb-leads h3 { margin: 0 0 8px; font: 800 20px/1 var(--display); letter-spacing: -0.02em; }
+.fb-leads ul { list-style: none; margin: 0; padding: 0; }
+.fb-lead-item { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr) 220px; gap: 16px; align-items: center; padding: 10px 0; border-top: 1px solid var(--line); }
+.fb-lead-item:first-child { border-top: 0; }
+.fb-lead-who a { font-weight: 700; word-break: break-all; font-size: 15px; }
+.fb-lead-meta { color: var(--muted); font-size: 14px; }
+.fb-mail { justify-self: end; font-weight: 700; font-size: 14px; padding: 6px 12px; border-radius: 999px; white-space: nowrap; }
+.fb-mail.done { background: var(--mint); color: var(--ink); }
+.fb-mail.todo { background: #FFD9C9; color: var(--ink); }
+.fb-mail.muted { color: var(--muted); font-weight: 500; padding-right: 0; }
+@media (max-width: 860px) {
+  .fb-lead-item { grid-template-columns: 1fr; gap: 4px; }
+  .fb-mail { justify-self: start; }
+}

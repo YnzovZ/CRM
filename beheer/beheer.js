@@ -1,7 +1,7 @@
 (function () {
   var api = window.YnzoApi;
   var $ = function (id) { return document.getElementById(id); };
-  var state = { talks: [], handouts: [], rows: [], agenda: [], editing: null, qrTalk: null, codeTouched: false, pendingAgenda: "" };
+  var state = { talks: [], handouts: [], rows: [], agenda: [], editing: null, qrTalk: null, codeTouched: false, pendingAgenda: "", mailed: {} };
 
   var dateFmt = new Intl.DateTimeFormat("nl-NL", { day: "numeric", month: "short", year: "numeric" });
   var numFmt = new Intl.NumberFormat("nl-NL", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
@@ -455,6 +455,36 @@
     top.appendChild(dist);
     wrap.appendChild(top);
 
+    // Leads bovenaan, met vinkje als je ze sinds hun reactie hebt gemaild
+    if (leads.length) {
+      var lw = el("div", "fb-leads");
+      lw.appendChild(el("h3", null, "leads"));
+      var ul = el("ul");
+      var ask = [];
+      leads.forEach(function (r) {
+        var li = el("li", "fb-lead-item");
+        var who = el("div", "fb-lead-who");
+        who.appendChild(el("div", "fb-org", r.organisatie || "Organisatie niet ingevuld"));
+        if (r.email) {
+          var a = el("a", null, r.email);
+          a.href = "mailto:" + r.email;
+          who.appendChild(a);
+        }
+        li.appendChild(who);
+        li.appendChild(el("div", "fb-lead-meta", "gaf een " + r.cijfer + ", " + timeFmt.format(new Date(r.tijd))));
+        var st = el("div", "fb-mail");
+        var key = (r.email || "").toLowerCase();
+        st.setAttribute("data-email", key);
+        paintMail(st, key);
+        li.appendChild(st);
+        ul.appendChild(li);
+        if (key && !(key in state.mailed)) ask.push({ email: key, since: r.tijd });
+      });
+      lw.appendChild(ul);
+      wrap.appendChild(lw);
+      if (ask.length) checkMail(ask);
+    }
+
     // Alle feedback op een rij
     var table = el("table", "table fb-table");
     var thead = el("thead");
@@ -489,6 +519,35 @@
     tw.appendChild(table);
     wrap.appendChild(tw);
     return wrap;
+  }
+
+  var mailFmt = new Intl.DateTimeFormat("nl-NL", { timeZone: "Europe/Amsterdam", day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
+
+  function paintMail(node, email) {
+    node.className = "fb-mail";
+    if (!email) { node.textContent = "geen e-mailadres"; node.className += " muted"; return; }
+    if (!(email in state.mailed)) { node.textContent = "Gmail checken..."; node.className += " muted"; return; }
+    var v = state.mailed[email];
+    if (v === "fout") { node.textContent = "Gmail niet bereikbaar"; node.className += " muted"; return; }
+    if (v) { node.textContent = "\u2713 gemaild " + mailFmt.format(new Date(v)); node.className += " done"; return; }
+    node.textContent = "nog niet gemaild";
+    node.className += " todo";
+  }
+
+  function checkMail(leads) {
+    api.mailed(leads).then(function (data) {
+      if (!data.ok || !data.mailed) {
+        leads.forEach(function (l) { state.mailed[l.email] = "fout"; });
+        if (data && !data.ok) status("Gmail-check: " + String(data.error || "").replace(/^gmail:\s*/, "") + (/permission|toestemming|autori/i.test(data.error || "") ? " Draai testGmail in de editor om toegang te geven." : ""));
+        else status("Gmail-check vraagt scriptversie 8.");
+      } else {
+        leads.forEach(function (l) { state.mailed[l.email] = data.mailed[l.email] || null; });
+      }
+      document.querySelectorAll(".fb-mail[data-email]").forEach(function (n) { paintMail(n, n.getAttribute("data-email")); });
+    }).catch(function () {
+      leads.forEach(function (l) { state.mailed[l.email] = "fout"; });
+      document.querySelectorAll(".fb-mail[data-email]").forEach(function (n) { paintMail(n, n.getAttribute("data-email")); });
+    });
   }
 
   // Vanuit "alle talks" direct naar de feedback van een talk.
