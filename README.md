@@ -80,3 +80,15 @@ In een opengeklapte talk staan de leads bovenaan. Per lead kijkt het script in j
 Is er sinds de reactie gemaild, dan staat "contact gehad" vanzelf aan (via Gmail, niet uit te vinken). Contact buiten Gmail (telefoon, LinkedIn) vink je zelf af met "contact gehad". Dat komt met datum in de kolom "Contact gehad" van het tabblad Feedback en gaat voor op de Gmail-check.
 
 Gevonden is gevonden: vindt het script een verzonden mail, dan zet het de datum in de kolom "Gemaild". Bij een volgende keer verversen zoekt het voor die lead niet meer in Gmail. Leads met "contact gehad" slaat het ook over. Alleen leads die nog op "nog niet gemaild" staan, worden opnieuw gecheckt, en dan alleen tot 60 dagen na hun reactie (`MAIL_DAYS` in `beheer/beheer.js`). Daarna staat er "niet meer gecheckt".
+
+## CRM
+
+Alle talks, aanvragen en leads staan onder elkaar in het tabblad **Kansen**: één rij per kans, van lead of aanvraag tot gegeven talk. Kolommen: ID, Status, Soort, Spreker, Datum aanvraag, Datum talk, Tijdstip, Organisatie, Contactpersoon, E-mail, Telefoon, Via bureau, Bureau contactpersoon, Bureau e-mail, Locatie, Land, Taal, Deelnemers, Type publiek, Bedrag excl, Factuurnummer, Talkcode, Reden, Notities, Opmerkingen, Periode, Bron, Bron-ID.
+
+Status is een van: lead, aanvraag, optie, geboekt, gegeven, afgewezen, geannuleerd, verlopen, onbekend.
+
+Elke rij onthoudt waar hij vandaan komt (Bron en Bron-ID). Zo kan een import opnieuw draaien zonder dubbele rijen.
+
+### Historie verzamelen
+
+`apps-script/Verzamelen.gs` is een tweede scriptbestand. `verzamelAgenda()` en `verzamelGmail()` zetten kandidaten vanaf juli 2020 in het tabblad "Te beoordelen". Daarna worden ze beoordeeld en samengevoegd tot kansen. Persoonsgegevens (zoals de Tony's-export) komen nooit in deze repo.
