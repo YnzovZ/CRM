@@ -96,3 +96,12 @@ Elke rij onthoudt waar hij vandaan komt (Bron en Bron-ID). Zo kan een import opn
 ### Bijhouden
 
 `apps-script/CRM.gs` houdt het tabblad CRM daarna zelf bij. Een QR-reactie met interesse wordt een lead. Elke ochtend om 6 uur komen nieuwe afspraken met "talk" uit je agenda erbij als "geboekt", en gaan geboekte talks met een datum in het verleden naar "gegeven". Eenmalig nodig: draai `installeerDagelijks` in de editor.
+
+### Opschonen en archief
+
+Rijen gaan nooit echt weg, maar naar het tabblad **Archief**, met datum en reden. De sync kijkt ook in het archief, dus een gearchiveerde rij komt niet terug.
+
+- Zelf wegzetten: zet in de kolom Status `weg`. Bij de dagelijkse ronde verhuist de rij naar het archief.
+- `opschonen` (eenmalig, vanuit de editor) maakt eerst een kopie van het tabblad CRM en archiveert daarna lege aanvragen, bureau-rondmails zonder klantgegevens en Tony's-regels zonder organisatie en e-mail. Dubbele rijen (zelfde organisatie en talkdatum) voegt hij samen.
+
+Het script zoekt kolommen op naam, dus je mag kolommen verschuiven of toevoegen. Hernoem ze niet.
