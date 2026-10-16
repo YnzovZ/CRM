@@ -472,11 +472,33 @@
         }
         li.appendChild(who);
         li.appendChild(el("div", "fb-lead-meta", "gaf een " + r.cijfer + ", " + timeFmt.format(new Date(r.tijd))));
+        var right = el("div", "fb-lead-status");
         var st = el("div", "fb-mail");
         var key = (r.email || "").toLowerCase();
         st.setAttribute("data-email", key);
+        st._row = r;
         paintMail(st, key);
-        li.appendChild(st);
+        right.appendChild(st);
+        var lab = el("label", "fb-contact");
+        var cb = el("input");
+        cb.type = "checkbox";
+        cb.checked = !!r.contact;
+        cb.addEventListener("change", function () {
+          cb.disabled = true;
+          var on = cb.checked;
+          api.setContact(r, on).then(function (data) {
+            cb.disabled = false;
+            if (!data.ok) { cb.checked = !on; status("Opslaan mislukt: " + data.error); return; }
+            r.contact = data.contact;
+            if (data.rij) r.rij = data.rij;
+            paintMail(st, key);
+            status(on ? "Contact gehad opgeslagen." : "Vinkje weggehaald.");
+          }).catch(function () { cb.disabled = false; cb.checked = !on; status("Opslaan mislukt. Check je verbinding."); });
+        });
+        lab.appendChild(cb);
+        lab.appendChild(document.createTextNode(" contact gehad"));
+        right.appendChild(lab);
+        li.appendChild(right);
         ul.appendChild(li);
         if (key && !(key in state.mailed)) ask.push({ email: key, since: r.tijd });
       });
@@ -525,6 +547,13 @@
 
   function paintMail(node, email) {
     node.className = "fb-mail";
+    var row = node._row;
+    if (row && row.contact) {
+      var d = new Date(row.contact);
+      node.textContent = "\u2713 contact gehad" + (isNaN(d) ? "" : " " + mailFmt.format(d).split(",")[0]);
+      node.className += " done";
+      return;
+    }
     if (!email) { node.textContent = "geen e-mailadres"; node.className += " muted"; return; }
     if (!(email in state.mailed)) { node.textContent = "Gmail checken..."; node.className += " muted"; return; }
     var v = state.mailed[email];

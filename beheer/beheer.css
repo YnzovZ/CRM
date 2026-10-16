@@ -149,7 +149,7 @@ input:focus, select:focus { outline: 3px solid var(--orange); outline-offset: 1p
 .fb-leads { background: var(--card); border: 2px solid var(--ink); border-radius: 14px; padding: 16px 18px; margin-bottom: 16px; }
 .fb-leads h3 { margin: 0 0 8px; font: 800 20px/1 var(--display); letter-spacing: -0.02em; }
 .fb-leads ul { list-style: none; margin: 0; padding: 0; }
-.fb-lead-item { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr) 220px; gap: 16px; align-items: center; padding: 10px 0; border-top: 1px solid var(--line); }
+.fb-lead-item { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr) auto; gap: 16px; align-items: center; padding: 10px 0; border-top: 1px solid var(--line); }
 .fb-lead-item:first-child { border-top: 0; }
 .fb-lead-who a { font-weight: 700; word-break: break-all; font-size: 15px; }
 .fb-lead-meta { color: var(--muted); font-size: 14px; }
@@ -161,3 +161,8 @@ input:focus, select:focus { outline: 3px solid var(--orange); outline-offset: 1p
   .fb-lead-item { grid-template-columns: 1fr; gap: 4px; }
   .fb-mail { justify-self: start; }
 }
+
+.fb-lead-status { display: flex; align-items: center; gap: 14px; justify-self: end; }
+.fb-contact { display: inline-flex; align-items: center; gap: 6px; margin: 0; font-size: 14px; font-weight: 700; cursor: pointer; white-space: nowrap; }
+.fb-contact input { width: 20px; height: 20px; margin: 0; accent-color: var(--ink); }
+@media (max-width: 860px) { .fb-lead-status { justify-self: start; flex-wrap: wrap; } }
