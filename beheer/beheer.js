@@ -536,7 +536,7 @@
       tdS.appendChild(el("span", "fb-score" + (r.cijfer < 6 ? " low" : ""), String(r.cijfer)));
       tr.appendChild(tdS);
       var txt = (r.waarom || "").trim();
-      tr.appendChild(el("td", "fb-text" + (txt ? "" : " muted"), txt || "alleen een cijfer"));
+      tr.appendChild(el("td", "fb-text", txt));
       var tdL = el("td", "fb-lead");
       if (r.interesse) {
         if (r.organisatie) tdL.appendChild(el("div", "fb-org", r.organisatie));
