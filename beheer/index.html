@@ -30,7 +30,7 @@
       <img src="/samenvatting/assets/logo-top.svg" alt="ynzo." class="side-logo">
       <a href="#talks" data-route="talks">Talks &amp; QR</a>
       <a href="#feedback" data-route="feedback">Feedback</a>
-      <a href="#contacten" data-route="contacten">Contacten <span class="soon">straks</span></a>
+      <a href="#contacten" data-route="contacten">CRM</a>
       <button type="button" class="side-logout" id="logout">Uitloggen</button>
     </nav>
 
@@ -114,13 +114,35 @@
         </div>
       </section>
 
-      <!-- Contacten (later) -->
+      <!-- CRM -->
       <section data-view="contacten" hidden>
         <header class="view-head">
-          <h1>contacten</h1>
-          <p>Hier komt je CRM: organisaties, contactpersonen, aanvragen en boekingen. De leads uit je feedback komen hier straks vanzelf binnen.</p>
+          <h1>crm</h1>
+          <p>Alle talks, aanvragen en leads onder elkaar. Klik op een organisatie voor alles wat je met ze hebt gedaan.</p>
         </header>
-        <div class="card soon-card">Nog in aanbouw.</div>
+        <div class="crm-kpis" id="crm-kpis"></div>
+        <div class="card crm-open" id="crm-open" hidden>
+          <h2>opvolgen</h2>
+          <ul class="crm-open-list" id="crm-open-list"></ul>
+        </div>
+        <div class="card crm-org" id="crm-org" hidden></div>
+        <div class="card">
+          <div class="crm-filters">
+            <input type="search" id="crm-q" placeholder="Zoek op organisatie, naam of e-mail" aria-label="Zoeken">
+            <select id="crm-status" aria-label="Status"><option value="">Alle statussen</option></select>
+            <select id="crm-jaar" aria-label="Jaar"><option value="">Alle jaren</option></select>
+            <select id="crm-bureau" aria-label="Bureau"><option value="">Alle bureaus</option><option value="-">Direct, zonder bureau</option></select>
+            <label class="crm-check"><input type="checkbox" id="crm-mij" checked> alleen mijn talks</label>
+          </div>
+          <p class="hint" id="crm-count"></p>
+          <div class="table-wrap">
+            <table class="table crm-table">
+              <thead><tr id="crm-head"></tr></thead>
+              <tbody id="crm-rows"></tbody>
+            </table>
+          </div>
+          <div class="row"><button class="btn btn-ghost btn-small" id="crm-more" type="button" hidden>Toon meer</button></div>
+        </div>
       </section>
 
       <p class="status" id="status" role="status"></p>
@@ -131,5 +153,6 @@
   <script src="/lib/api.js"></script>
   <script src="/qr/qrcode.js"></script>
   <script src="/beheer/beheer.js"></script>
+  <script src="/beheer/crm.js"></script>
 </body>
 </html>

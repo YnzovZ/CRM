@@ -22,7 +22,7 @@ var NOTIFY_EMAIL = "";
 var DASHBOARD_KEY = "";
 
 // Open de web-app-URL in je browser om te zien welke versie live staat.
-var SCRIPT_VERSION = "11 (crm)";
+var SCRIPT_VERSION = "12 (crm-overzicht)";
 
 function doGet(e) {
   var p = (e && e.parameter) || {};
@@ -42,6 +42,8 @@ function doGet(e) {
   if (p.action === "deleteTalk") return respond(deleteTalk(p.code));
   if (p.action === "talks") return respond({ ok: true, versie: SCRIPT_VERSION, talks: getTalks() });
   if (p.action === "setContact") return respond(setContact(p));
+  if (p.action === "crm") return respond(crmLijst());
+  if (p.action === "setKans") return respond(setKans(p));
   if (p.action === "mailed") {
     try {
       return respond({ ok: true, versie: SCRIPT_VERSION, mailed: mailedSince(p.leads) });

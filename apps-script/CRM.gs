@@ -265,3 +265,41 @@ function installeerDagelijks() {
   ScriptApp.newTrigger("dagelijks").timeBased().everyDays(1).atHour(6).create();
   dagelijks();
 }
+
+// ---------- Voor /beheer/ ----------
+
+var KANS_STATUSSEN = ["lead", "aanvraag", "optie", "geboekt", "gegeven", "afgewezen", "geannuleerd", "verlopen", "onbekend", "weg"];
+var KANS_BEWERKBAAR = ["Status", "Organisatie", "Contactpersoon", "E-mail", "Telefoon", "Reden", "Notities", "Opmerkingen"];
+
+function crmLijst() {
+  var values = kansenSheet().getDataRange().getDisplayValues();
+  var koppen = values[0].map(function (h) { return String(h).trim(); });
+  var rows = [];
+  for (var i = 1; i < values.length; i++) {
+    if (!values[i].join("")) continue;
+    var o = { rij: i + 1 };
+    koppen.forEach(function (h, j) { if (h && h !== "Bron-ID" && values[i][j] !== "") o[h] = values[i][j]; });
+    rows.push(o);
+  }
+  return { ok: true, versie: SCRIPT_VERSION, statussen: KANS_STATUSSEN, rows: rows };
+}
+
+// Past één veld aan. Controleert eerst of de rij nog dezelfde kans is (ID),
+// zodat sorteren in de sheet geen kwaad kan.
+function setKans(p) {
+  if (KANS_BEWERKBAAR.indexOf(p.veld) < 0) return { ok: false, error: "dit veld kan niet worden aangepast" };
+  var waarde = String(p.waarde || "").trim();
+  if (p.veld === "Status" && KANS_STATUSSEN.indexOf(waarde) < 0) return { ok: false, error: "onbekende status" };
+  var sheet = kansenSheet();
+  var values = sheet.getDataRange().getDisplayValues();
+  var c = kolommen(values);
+  if (c[p.veld] < 0) return { ok: false, error: "kolom " + p.veld + " niet gevonden" };
+  var rij = Number(p.rij);
+  if (!(rij >= 2 && values[rij - 1] && values[rij - 1][c.ID] === p.id)) {
+    rij = 0;
+    for (var i = 1; i < values.length; i++) if (values[i][c.ID] === p.id) { rij = i + 1; break; }
+  }
+  if (!rij) return { ok: false, error: "kans " + p.id + " niet gevonden" };
+  sheet.getRange(rij, c[p.veld] + 1).setNumberFormat("@").setValue(clean(waarde, 2000));
+  return { ok: true, rij: rij };
+}
