@@ -53,7 +53,7 @@ Elke ochtend controleert een geplande Claude-taak of het artifact in `samenvatti
 
 `/dashboard/` laat per dag het gemiddelde cijfer, de verdeling, de leads en alle toelichtingen zien. De gegevens komen uit dezelfde Google Sheet, via het Apps Script, en zijn afgeschermd met `DASHBOARD_KEY` in `apps-script/Code.gs`. Vul daar zelf een lange sleutel in (minimaal 16 tekens) en implementeer opnieuw via Implementaties beheren. Op je telefoon open je `/dashboard/`, vul je de sleutel één keer in en zet je de pagina op je beginscherm.
 
-Meerdere talks op één dag splitst het dashboard vanzelf: na een gat van meer dan 90 minuten tussen reacties begint een nieuwe talk, mits daarna minstens 3 reacties volgen. Losse nakomers tellen mee bij de talk ervoor.
+Groeperen gaat in deze volgorde: eerst op talkcode (kolom Event), los van het tijdstip, en op de datum van de talk. Pas je in de sheet "algemeen" aan naar een talkcode, dan schuift die reactie bij de volgende keer verversen naar die talk. Hoofdletters en spaties maken niet uit. Alleen reacties op "algemeen" worden op tijd gesplitst: na een gat van meer dan 90 minuten begint een nieuwe groep, mits daarna minstens 3 reacties volgen.
 
 ## Beheer
 

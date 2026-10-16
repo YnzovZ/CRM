@@ -296,7 +296,7 @@
   function statsByCode() {
     var s = {};
     state.rows.forEach(function (r) {
-      var k = r.event || "algemeen";
+      var k = String(r.event || "").trim().toLowerCase() || "algemeen";
       if (!s[k]) s[k] = { n: 0, sum: 0, leads: 0, last: "" };
       s[k].n++;
       s[k].sum += r.cijfer;

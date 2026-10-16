@@ -26,7 +26,7 @@
   function talkName(group, i) {
     var code = group[0].event;
     if (code && code !== "algemeen") return state.names[code] || code;
-    return "Talk " + (i + 1);
+    return "Zonder code";
   }
 
   function splitByTime(rows) {
@@ -56,6 +56,9 @@
   var numFmt = new Intl.NumberFormat("nl-NL", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
 
   function dayKey(d) { return dayFmt.format(d); }
+
+  // Vergevingsgezind: hoofdletters en spaties maken geen andere talk.
+  function normCode(c) { return String(c || "").trim().toLowerCase() || "algemeen"; }
 
   function status(text) { $("status").textContent = text || ""; }
 
@@ -112,8 +115,25 @@
         }
         state.sheetRows = data.aantalRijen || 0;
         state.names = {};
-        (data.talks || []).forEach(function (t) { if (t.naam) state.names[t.code] = t.naam; });
-        state.rows = data.rows.map(function (r) { r.date = new Date(r.tijd); r.day = dayKey(r.date); return r; });
+        (data.talks || []).forEach(function (t) { if (t.naam) state.names[normCode(t.code)] = t.naam; });
+        state.rows = data.rows.map(function (r) {
+          r.event = normCode(r.event);
+          r.date = new Date(r.tijd);
+          r.day = dayKey(r.date);
+          return r;
+        });
+        // Reacties met een talkcode horen bij die talk, los van het tijdstip.
+        // Ze staan op de datum van de talk (uit het tabblad Talks), anders op
+        // de dag van de eerste reactie met die code.
+        var talkDay = {};
+        (data.talks || []).forEach(function (t) {
+          if (/^\d{4}-\d{2}-\d{2}$/.test(t.datum || "")) talkDay[normCode(t.code)] = t.datum;
+        });
+        state.rows.forEach(function (r) {
+          if (r.event === "algemeen" || talkDay[r.event]) return;
+          if (!talkDay[r.event] || r.day < talkDay[r.event]) talkDay[r.event] = r.day;
+        });
+        state.rows.forEach(function (r) { if (r.event !== "algemeen") r.day = talkDay[r.event]; });
         var seen = {};
         state.days = state.rows.map(function (r) { return r.day; })
           .filter(function (d) { return seen[d] ? false : (seen[d] = true); })
@@ -164,7 +184,7 @@
     renderTalks(talks);
     var rows = talks[state.talk].slice().sort(function (a, b) { return b.date - a.date; });
 
-    var label = labelFmt.format(rows[0].date);
+    var label = labelFmt.format(new Date(day + "T12:00:00Z"));
     $("day-label").textContent = (day === dayKey(new Date()) ? "vandaag, " : "") + label;
     var events = rows.map(function (r) { return r.event; })
       .filter(function (e, i, a) { return e && e !== "algemeen" && a.indexOf(e) === i; });
