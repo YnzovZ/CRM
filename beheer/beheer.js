@@ -464,12 +464,12 @@
       leads.forEach(function (r) {
         var li = el("li", "fb-lead-item");
         var who = el("div", "fb-lead-who");
-        who.appendChild(el("div", "fb-org", r.organisatie || "Organisatie niet ingevuld"));
         if (r.email) {
           var a = el("a", null, r.email);
           a.href = "mailto:" + r.email;
           who.appendChild(a);
         }
+        who.appendChild(el("div", "fb-org" + (r.organisatie ? "" : " muted"), r.organisatie || "organisatie niet ingevuld"));
         li.appendChild(who);
         li.appendChild(el("div", "fb-lead-meta", "gaf een " + r.cijfer + ", " + timeFmt.format(new Date(r.tijd))));
         var right = el("div", "fb-lead-status");
