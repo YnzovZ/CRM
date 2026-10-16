@@ -1,6 +1,8 @@
 (function () {
   var api = window.YnzoApi;
   var $ = function (id) { return document.getElementById(id); };
+  // Gmail-check alleen voor leads van de afgelopen MAIL_DAYS dagen.
+  var MAIL_DAYS = 60;
   var state = { talks: [], handouts: [], rows: [], agenda: [], editing: null, qrTalk: null, codeTouched: false, pendingAgenda: "", mailed: {}, fbSort: { key: "tijd", dir: "desc" } };
 
   var dateFmt = new Intl.DateTimeFormat("nl-NL", { day: "numeric", month: "short", year: "numeric" });
@@ -483,6 +485,8 @@
         var st = el("div", "fb-mail");
         var key = (r.email || "").toLowerCase();
         // Contact gehad? Dan hoeft Gmail ook niet.
+        // Ouder dan 60 dagen en nog open? Dan zoeken we niet meer in Gmail.
+        if (key && !(key in state.mailed) && !r.contact && Date.now() - new Date(r.tijd) > MAIL_DAYS * 864e5) state.mailed[key] = "oud";
         if (key && !(key in state.mailed) && !r.contact && !ask.some(function (l) { return l.email === key; })) ask.push({ email: key, since: r.tijd, rij: r.rij, tijd: r.tijd });
         if (key && r.contact && !(key in state.mailed)) state.mailed[key] = null;
         st.setAttribute("data-email", key);
@@ -598,7 +602,7 @@
     node.className = "fb-mail";
     var row = node._row;
     // Gemaild via Gmail telt ook als contact: vinkje aan en vast.
-    var viaGmail = !!(email && state.mailed[email] && state.mailed[email] !== "fout");
+    var viaGmail = !!(email && state.mailed[email] && state.mailed[email] !== "fout" && state.mailed[email] !== "oud");
     if (node._cb) {
       var manual = !!(row && row.contact);
       node._cb.checked = manual || viaGmail;
@@ -615,6 +619,7 @@
     if (!email) { node.textContent = "geen e-mailadres"; node.className += " muted"; return; }
     if (!(email in state.mailed)) { node.textContent = "Gmail checken..."; node.className += " muted"; return; }
     var v = state.mailed[email];
+    if (v === "oud") { node.textContent = "niet meer gecheckt (ouder dan " + MAIL_DAYS + " dagen)"; node.className += " muted"; return; }
     if (v === "fout") { node.textContent = "Gmail niet bereikbaar"; node.className += " muted"; return; }
     if (v) { node.textContent = "\u2713 gemaild " + mailFmt.format(new Date(v)); node.className += " done"; return; }
     node.textContent = "nog niet gemaild";

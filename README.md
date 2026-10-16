@@ -79,4 +79,4 @@ In een opengeklapte talk staan de leads bovenaan. Per lead kijkt het script in j
 
 Is er sinds de reactie gemaild, dan staat "contact gehad" vanzelf aan (via Gmail, niet uit te vinken). Contact buiten Gmail (telefoon, LinkedIn) vink je zelf af met "contact gehad". Dat komt met datum in de kolom "Contact gehad" van het tabblad Feedback en gaat voor op de Gmail-check.
 
-Gevonden is gevonden: vindt het script een verzonden mail, dan zet het de datum in de kolom "Gemaild". Bij een volgende keer verversen zoekt het voor die lead niet meer in Gmail. Leads met "contact gehad" slaat het ook over. Alleen leads die nog op "nog niet gemaild" staan, worden opnieuw gecheckt.
+Gevonden is gevonden: vindt het script een verzonden mail, dan zet het de datum in de kolom "Gemaild". Bij een volgende keer verversen zoekt het voor die lead niet meer in Gmail. Leads met "contact gehad" slaat het ook over. Alleen leads die nog op "nog niet gemaild" staan, worden opnieuw gecheckt, en dan alleen tot 60 dagen na hun reactie (`MAIL_DAYS` in `beheer/beheer.js`). Daarna staat er "niet meer gecheckt".
