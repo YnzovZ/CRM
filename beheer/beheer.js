@@ -85,9 +85,10 @@
     $("agenda-status").textContent = "Agenda ophalen...";
     api.agenda().then(function (data) {
       if (!data.ok) {
-        $("agenda-status").textContent = /agenda|autho|permission|toestemming/i.test(data.error || "")
-          ? "Geen toegang tot je agenda. Open het script in Google, kies bovenin de functie testAgenda, klik op Uitvoeren en geef toestemming. Implementeer daarna een nieuwe versie."
-          : "Agenda ophalen mislukt: " + data.error;
+        var err = String(data.error || "").replace(/^agenda:\s*/, "");
+        $("agenda-status").textContent = /permission|toestemming|authori|autoris|machtig|niet gemachtigd/i.test(err)
+          ? "Geen toegang tot je agenda. Open het script in Google, kies bovenin de functie testAgenda, klik op Uitvoeren en geef toestemming. Melding van Google: " + err
+          : "Agenda ophalen mislukt. Melding van Google: " + err;
         return;
       }
       if (!data.agenda) {
