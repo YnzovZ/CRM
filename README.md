@@ -92,3 +92,7 @@ Elke rij onthoudt waar hij vandaan komt (Bron en Bron-ID). Zo kan een import opn
 ### Historie verzamelen
 
 `apps-script/Verzamelen.gs` is een tweede scriptbestand. `verzamelAgenda()` en `verzamelGmail()` zetten kandidaten vanaf juli 2020 in het tabblad "Te beoordelen". Daarna worden ze beoordeeld en samengevoegd tot kansen. Persoonsgegevens (zoals de Tony's-export) komen nooit in deze repo.
+
+### Bijhouden
+
+`apps-script/CRM.gs` houdt Kansen daarna zelf bij. Een QR-reactie met interesse wordt een lead. Elke ochtend om 6 uur komen nieuwe afspraken met "talk" uit je agenda erbij als "geboekt", en gaan geboekte talks met een datum in het verleden naar "gegeven". Eenmalig nodig: draai `installeerDagelijks` in de editor.

@@ -22,7 +22,7 @@ var NOTIFY_EMAIL = "";
 var DASHBOARD_KEY = "";
 
 // Open de web-app-URL in je browser om te zien welke versie live staat.
-var SCRIPT_VERSION = "10 (gmail onthouden)";
+var SCRIPT_VERSION = "11 (crm)";
 
 function doGet(e) {
   var p = (e && e.parameter) || {};
@@ -140,6 +140,10 @@ function saveTalk(p) {
       }
     }
     sheet.appendRow(row);
+    // Interesse? Dan ook als lead in het CRM (tabblad Kansen, zie CRM.gs).
+    if (data.interest && typeof kansVanLead === "function") {
+      try { kansVanLead(row); } catch (err) { console.error(err); }
+    }
     return { ok: true, talks: getTalks() };
   } finally {
     lock.releaseLock();
