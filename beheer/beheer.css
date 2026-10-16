@@ -166,3 +166,11 @@ input:focus, select:focus { outline: 3px solid var(--orange); outline-offset: 1p
 .fb-contact { display: inline-flex; align-items: center; gap: 6px; margin: 0; font-size: 14px; font-weight: 700; cursor: pointer; white-space: nowrap; }
 .fb-contact input { width: 20px; height: 20px; margin: 0; accent-color: var(--ink); }
 @media (max-width: 860px) { .fb-lead-status { justify-self: start; flex-wrap: wrap; } }
+
+/* Sorteerbare kolommen */
+.th-sort { background: none; border: 0; padding: 0; font: inherit; color: inherit; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
+.th-sort::after { content: "\2195"; opacity: .35; font-size: 12px; }
+.th-sort.is-active { color: var(--ink); }
+.th-sort.is-active.asc::after { content: "\2191"; opacity: 1; }
+.th-sort.is-active.desc::after { content: "\2193"; opacity: 1; }
+.th-sort:hover { color: var(--ink); text-decoration: underline; }

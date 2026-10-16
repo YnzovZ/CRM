@@ -1,7 +1,7 @@
 (function () {
   var api = window.YnzoApi;
   var $ = function (id) { return document.getElementById(id); };
-  var state = { talks: [], handouts: [], rows: [], agenda: [], editing: null, qrTalk: null, codeTouched: false, pendingAgenda: "", mailed: {} };
+  var state = { talks: [], handouts: [], rows: [], agenda: [], editing: null, qrTalk: null, codeTouched: false, pendingAgenda: "", mailed: {}, fbSort: { key: "tijd", dir: "desc" } };
 
   var dateFmt = new Intl.DateTimeFormat("nl-NL", { day: "numeric", month: "short", year: "numeric" });
   var numFmt = new Intl.NumberFormat("nl-NL", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
@@ -511,11 +511,25 @@
     var table = el("table", "table fb-table");
     var thead = el("thead");
     var hr = el("tr");
-    ["Tijd", "Cijfer", "Toelichting", "Lead"].forEach(function (h) { hr.appendChild(el("th", null, h)); });
+    var sort = state.fbSort;
+    [["tijd", "Tijd"], ["cijfer", "Cijfer"], ["waarom", "Toelichting"], ["lead", "Lead"]].forEach(function (c) {
+      var th = el("th");
+      var active = sort.key === c[0];
+      th.setAttribute("aria-sort", active ? (sort.dir === "asc" ? "ascending" : "descending") : "none");
+      var b = el("button", "th-sort" + (active ? " is-active " + sort.dir : ""), c[1]);
+      b.type = "button";
+      b.addEventListener("click", function () {
+        if (sort.key === c[0]) sort.dir = sort.dir === "asc" ? "desc" : "asc";
+        else state.fbSort = { key: c[0], dir: c[0] === "waarom" ? "asc" : "desc" };
+        renderFeedback();
+      });
+      th.appendChild(b);
+      hr.appendChild(th);
+    });
     thead.appendChild(hr);
     table.appendChild(thead);
     var tb = el("tbody");
-    rows.forEach(function (r) {
+    sortRows(rows.slice(), sort).forEach(function (r) {
       var tr = el("tr");
       tr.appendChild(el("td", "fb-time", timeFmt.format(new Date(r.tijd))));
       var tdS = el("td");
@@ -541,6 +555,23 @@
     tw.appendChild(table);
     wrap.appendChild(tw);
     return wrap;
+  }
+
+  // Sorteren op kolom. Bij gelijke waarden: nieuwste eerst.
+  function sortRows(rows, sort) {
+    var dir = sort.dir === "asc" ? 1 : -1;
+    var val = {
+      tijd: function (r) { return r.tijd; },
+      cijfer: function (r) { return r.cijfer; },
+      waarom: function (r) { var t = (r.waarom || "").trim().toLowerCase(); return t ? "0" + t : "1"; },
+      lead: function (r) { return r.interesse ? 1 : 0; }
+    }[sort.key];
+    return rows.sort(function (a, b) {
+      var x = val(a), y = val(b);
+      var c = x < y ? -1 : x > y ? 1 : 0;
+      if (sort.key === "waarom") return c * dir || b.tijd.localeCompare(a.tijd);
+      return c * dir || b.tijd.localeCompare(a.tijd);
+    });
   }
 
   var mailFmt = new Intl.DateTimeFormat("nl-NL", { timeZone: "Europe/Amsterdam", day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
