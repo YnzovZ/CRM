@@ -162,7 +162,7 @@ input:focus, select:focus { outline: 3px solid var(--orange); outline-offset: 1p
   .fb-mail { justify-self: start; }
 }
 
-.fb-lead-status { display: grid; grid-template-columns: 230px 200px; align-items: start; gap: 16px; justify-self: end; }
+.fb-lead-status { display: grid; grid-template-columns: 230px 140px; align-items: start; gap: 16px; justify-self: end; }
 .fb-lead-status .fb-mail { justify-self: end; }
 .fb-lead-status .fb-contact { justify-self: start; }
 .fb-contact { display: inline-flex; align-items: center; gap: 6px; margin: 0; font-size: 14px; font-weight: 700; cursor: pointer; white-space: nowrap; }

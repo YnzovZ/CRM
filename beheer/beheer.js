@@ -590,7 +590,7 @@
       node._cb.checked = manual || viaGmail;
       node._cb.disabled = viaGmail && !manual;
       node._cb.parentNode.title = node._cb.disabled ? "Herkend via je verzonden mail" : "";
-      node._labText.textContent = node._cb.disabled ? "contact gehad (via Gmail)" : "contact gehad";
+      node._labText.textContent = "contact gehad";
     }
     if (row && row.contact) {
       var d = new Date(row.contact);
