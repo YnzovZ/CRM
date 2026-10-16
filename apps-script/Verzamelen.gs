@@ -23,9 +23,14 @@ var BUREAUS = ["speakersacademy.nl", "sprekershuys.nl", "thriveinstitute.nl", "b
   "effectgroep.nl", "speakersonline.nl", "nexxworks.com", "assemblee.nl", "verhaalmetimpact.nl", "marcusevansbb.com",
   "serenevents.com", "loveforleadership.com"];
 
+// Afzenders die nooit een aanvraag zijn: nieuwsbrieven, meldingen, je eigen adressen.
+var RUIS = "-from:(linkedin.com OR substack.com OR hbr.org OR beehiiv.com OR fireflies.ai OR accenturealumni.com OR google.com OR " +
+  "thehustle.co OR semafor.com OR ecamm.com OR descript.com OR nrcmedia.nl OR psfk.com OR ynzo.com OR noreply OR no-reply OR newsletter) " +
+  "-category:promotions -category:social";
+
 var GMAIL_ZOEKOPDRACHTEN = [
-  '(talk OR keynote OR lezing OR spreker OR dagvoorzitter OR inspiratiesessie OR sprekersbureau OR "als spreker" OR speaker) -from:me',
-  '(aanvraag OR beschikbaarheid OR beschikbaar OR optie OR offerte) (talk OR keynote OR lezing OR sessie OR spreker) -from:me',
+  '(talk OR keynote OR lezing OR spreker OR dagvoorzitter OR inspiratiesessie OR sprekersbureau OR "als spreker" OR speaker) -from:me ' + RUIS,
+  '(aanvraag OR beschikbaarheid OR beschikbaar OR optie OR offerte) (talk OR keynote OR lezing OR sessie OR spreker) -from:me ' + RUIS,
   "from:(" + BUREAUS.join(" OR ") + ")"
 ];
 
