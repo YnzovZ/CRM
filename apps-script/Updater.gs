@@ -70,17 +70,20 @@ function bijwerken() {
   apiJson("put", API + id + "/content", auth, { files: bestanden });
   var versie = apiJson("post", API + id + "/versions", auth, { description: "GitHub " + vandaag() });
 
-  // De web-app krijgt de nieuwe versie, de URL blijft gelijk.
-  var deploys = (apiJson("get", API + id + "/deployments", auth).deployments || []).filter(function (d) {
-    return d.deploymentConfig && d.deploymentConfig.versionNumber && (d.entryPoints || []).some(function (e) { return e.entryPointType === "WEB_APP"; });
-  });
+  // De web-app krijgt de nieuwe versie, de URL blijft gelijk. Alle implementaties
+  // met een vaste versie (dus niet de testimplementatie) gaan mee.
+  var alle = apiJson("get", API + id + "/deployments", auth).deployments || [];
+  var deploys = alle.filter(function (d) { return d.deploymentConfig && d.deploymentConfig.versionNumber; });
   deploys.forEach(function (d) {
     apiJson("put", API + id + "/deployments/" + d.deploymentId, auth, {
       deploymentConfig: { scriptId: id, versionNumber: versie.versionNumber, manifestFileName: "appsscript", description: "GitHub " + vandaag() }
     });
   });
-  Logger.log("Bijgewerkt naar versie " + versie.versionNumber + ", " + deploys.length + " web-app(s) live gezet.");
-  return "versie " + versie.versionNumber;
+  var uitkomst = "versie " + versie.versionNumber + ", " + deploys.length + " van " + alle.length + " implementatie(s) live gezet";
+  Logger.log(uitkomst + ". " + JSON.stringify(alle.map(function (d) {
+    return { id: String(d.deploymentId).slice(0, 12), versie: d.deploymentConfig && d.deploymentConfig.versionNumber, type: (d.entryPoints || []).map(function (e) { return e.entryPointType; }) };
+  })));
+  return uitkomst;
 }
 
 function bewaarInstellingenUit(bron) {
