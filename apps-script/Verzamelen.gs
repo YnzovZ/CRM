@@ -24,7 +24,7 @@ var BUREAUS = ["speakersacademy.nl", "sprekershuys.nl", "thriveinstitute.nl", "b
   "serenevents.com", "loveforleadership.com"];
 
 var GMAIL_ZOEKOPDRACHTEN = [
-  '(keynote OR lezing OR spreker OR dagvoorzitter OR inspiratiesessie OR sprekersbureau OR "als spreker" OR speaker) -from:me',
+  '(talk OR keynote OR lezing OR spreker OR dagvoorzitter OR inspiratiesessie OR sprekersbureau OR "als spreker" OR speaker) -from:me',
   '(aanvraag OR beschikbaarheid OR beschikbaar OR optie OR offerte) (talk OR keynote OR lezing OR sessie OR spreker) -from:me',
   "from:(" + BUREAUS.join(" OR ") + ")"
 ];
