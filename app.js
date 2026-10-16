@@ -1,6 +1,7 @@
 (function () {
   var config = window.FEEDBACK_CONFIG || {};
   var summaryUrl = config.summaryUrl || "/samenvatting/";
+  var handoutReady = Promise.resolve();
 
   var form = document.getElementById("feedback");
   var scale = form.querySelector(".scale");
@@ -16,6 +17,20 @@
   var event = (params.get("event") || "algemeen").slice(0, 100);
 
   document.getElementById("skip").href = summaryUrl;
+
+  // Heeft deze talk een eigen hand-out? Dan gaan we daarheen. Lukt het opvragen
+  // niet binnen 3 seconden, dan blijft het de standaard hand-out.
+  if (event !== "algemeen" && window.YnzoApi) {
+    handoutReady = Promise.race([
+      window.YnzoApi.handoutFor(event).then(function (pad) {
+        if (pad) {
+          summaryUrl = pad;
+          document.getElementById("skip").href = pad;
+        }
+      }).catch(function () {}),
+      new Promise(function (resolve) { setTimeout(resolve, 3000); })
+    ]);
+  }
 
   for (var i = 1; i <= 10; i++) {
     var id = "score-" + i;
@@ -79,7 +94,7 @@
     submit.disabled = true;
     submit.textContent = "Even versturen...";
 
-    send(payload).finally(function () {
+    Promise.all([send(payload), handoutReady]).finally(function () {
       location.href = summaryUrl;
     });
   });

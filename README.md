@@ -54,3 +54,17 @@ Elke ochtend controleert een geplande Claude-taak of het artifact in `samenvatti
 `/dashboard/` laat per dag het gemiddelde cijfer, de verdeling, de leads en alle toelichtingen zien. De gegevens komen uit dezelfde Google Sheet, via het Apps Script, en zijn afgeschermd met `DASHBOARD_KEY` in `apps-script/Code.gs`. Vul daar zelf een lange sleutel in (minimaal 16 tekens) en implementeer opnieuw via Implementaties beheren. Op je telefoon open je `/dashboard/`, vul je de sleutel één keer in en zet je de pagina op je beginscherm.
 
 Meerdere talks op één dag splitst het dashboard vanzelf: na een gat van meer dan 90 minuten tussen reacties begint een nieuwe talk, mits daarna minstens 3 reacties volgen. Losse nakomers tellen mee bij de talk ervoor.
+
+## Beheer
+
+`/beheer/` is de beheeromgeving voor op je desktop, met dezelfde sleutel als het dashboard. Onderdelen:
+
+- **Talks & QR**: maak per talk een QR-code (`/?event=<code>`) en kies welke hand-out mensen na het formulier zien. Talks staan in het tabblad "Talks" van de Google Sheet.
+- **Feedback**: gemiddelde, aantal reacties en leads per talk, met een link naar het mobiele dashboard.
+- **Contacten**: plek voor het toekomstige CRM.
+
+De hand-out wordt pas bepaald op het moment dat iemand scant. Een QR-code blijft dus geldig, ook als je later een klantversie koppelt.
+
+Beschikbare hand-outs staan in `handouts.json`. Een klantversie komt in `handouts/<naam>/` en krijgt daar een regel.
+
+Alle schermen praten via `lib/api.js` met de opslag. Gaat het systeem later naar een echte database, dan verandert alleen dat bestand.

@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#0A0A0A">
+  <title>Ynzo beheer</title>
+  <link rel="manifest" href="/beheer/manifest.webmanifest">
+  <link rel="apple-touch-icon" href="/dashboard/icon-180.png">
+  <link rel="icon" href="/dashboard/icon-192.png">
+  <link rel="stylesheet" href="/beheer/beheer.css">
+</head>
+<body>
+
+  <section id="login" class="login" hidden>
+    <img src="/samenvatting/assets/logo.svg" alt="ynzo." class="login-logo">
+    <h1>beheer</h1>
+    <p>Vul je sleutel in. Dezelfde als voor je feedbackdashboard.</p>
+    <form id="login-form">
+      <label for="key">Sleutel</label>
+      <input type="password" id="key" autocomplete="current-password" required>
+      <button type="submit" class="btn">Openen</button>
+      <p class="error" id="login-error" hidden></p>
+    </form>
+  </section>
+
+  <div id="app" class="shell" hidden>
+    <nav class="side" aria-label="Onderdelen">
+      <img src="/samenvatting/assets/logo-top.svg" alt="ynzo." class="side-logo">
+      <a href="#talks" data-route="talks">Talks &amp; QR</a>
+      <a href="#feedback" data-route="feedback">Feedback</a>
+      <a href="#contacten" data-route="contacten">Contacten <span class="soon">straks</span></a>
+      <button type="button" class="side-logout" id="logout">Uitloggen</button>
+    </nav>
+
+    <main class="main">
+
+      <!-- Talks & QR -->
+      <section data-view="talks" hidden>
+        <header class="view-head">
+          <h1>talks &amp; QR</h1>
+          <p>Maak per talk een eigen QR-code. Kies welke hand-out mensen na het formulier zien.</p>
+        </header>
+
+        <div class="grid">
+          <form class="card" id="talk-form">
+            <h2 id="talk-form-title">nieuwe talk</h2>
+            <label for="t-naam">Naam</label>
+            <input id="t-naam" placeholder="bijvoorbeeld Rabobank congres" required maxlength="200">
+            <label for="t-datum">Datum</label>
+            <input id="t-datum" type="date">
+            <label for="t-code">Code in de QR-link</label>
+            <input id="t-code" pattern="[a-z0-9-]+" maxlength="60" required>
+            <p class="hint">Wordt vanzelf ingevuld. Alleen kleine letters, cijfers en streepjes.</p>
+            <label for="t-handout">Hand-out</label>
+            <select id="t-handout"></select>
+            <div class="row">
+              <button type="submit" class="btn" id="t-save">Opslaan en QR maken</button>
+              <button type="button" class="btn btn-ghost" id="t-cancel" hidden>Annuleren</button>
+            </div>
+            <p class="error" id="t-error" hidden></p>
+          </form>
+
+          <div class="card qr-card" id="qr-card" hidden>
+            <h2 id="qr-title"></h2>
+            <div class="qr" id="qr"></div>
+            <p class="qr-link"><a id="qr-link" target="_blank" rel="noopener"></a></p>
+            <p class="hint" id="qr-handout"></p>
+            <div class="row">
+              <button type="button" class="btn" id="qr-png">Download PNG</button>
+              <button type="button" class="btn btn-ghost" id="qr-svg">Download SVG</button>
+              <button type="button" class="btn btn-ghost" id="qr-copy">Kopieer link</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>alle talks</h2>
+          <div class="table-wrap">
+            <table class="table">
+              <thead><tr><th>Datum</th><th>Naam</th><th>Code</th><th>Hand-out</th><th>Feedback</th><th></th></tr></thead>
+              <tbody id="talk-rows"></tbody>
+            </table>
+          </div>
+          <p class="empty" id="talks-empty" hidden>Nog geen talks. Maak hierboven je eerste aan.</p>
+        </div>
+      </section>
+
+      <!-- Feedback -->
+      <section data-view="feedback" hidden>
+        <header class="view-head">
+          <h1>feedback</h1>
+          <p>Gemiddelde en aantal reacties per talk. Voor de details per dag open je het dashboard.</p>
+        </header>
+        <div class="row"><a class="btn" href="/dashboard/" target="_blank" rel="noopener">Open feedbackdashboard</a></div>
+        <div class="card">
+          <div class="table-wrap">
+            <table class="table">
+              <thead><tr><th>Talk</th><th>Laatste reactie</th><th>Reacties</th><th>Gemiddeld</th><th>Leads</th></tr></thead>
+              <tbody id="fb-rows"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- Contacten (later) -->
+      <section data-view="contacten" hidden>
+        <header class="view-head">
+          <h1>contacten</h1>
+          <p>Hier komt je CRM: organisaties, contactpersonen, aanvragen en boekingen. De leads uit je feedback komen hier straks vanzelf binnen.</p>
+        </header>
+        <div class="card soon-card">Nog in aanbouw.</div>
+      </section>
+
+      <p class="status" id="status" role="status"></p>
+    </main>
+  </div>
+
+  <script src="/config.js"></script>
+  <script src="/lib/api.js"></script>
+  <script src="/qr/qrcode.js"></script>
+  <script src="/beheer/beheer.js"></script>
+</body>
+</html>

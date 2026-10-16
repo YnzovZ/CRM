@@ -4,6 +4,10 @@
 var SHEET_NAME = "Feedback";
 var HEADERS = ["Tijdstip", "Event", "Cijfer", "Waarom", "Interesse in talk", "E-mail", "Organisatie"];
 
+// Tabblad met je talks: welke QR-code bij welke hand-out hoort.
+var TALKS_SHEET = "Talks";
+var TALK_HEADERS = ["Code", "Naam", "Datum", "Hand-out"];
+
 // Vul je eigen adres in om bij elke lead een mail te krijgen. Leeg laten = geen mail.
 var NOTIFY_EMAIL = "";
 
@@ -12,14 +16,26 @@ var NOTIFY_EMAIL = "";
 var DASHBOARD_KEY = "";
 
 // Open de web-app-URL in je browser om te zien welke versie live staat.
-var SCRIPT_VERSION = "5 (dashboard, robuust)";
+var SCRIPT_VERSION = "6 (talks en hand-outs)";
 
 function doGet(e) {
-  var key = e && e.parameter && e.parameter.key;
-  if (!key) return respond({ ok: true, versie: SCRIPT_VERSION });
-  if (!DASHBOARD_KEY || DASHBOARD_KEY.length < 16 || key !== DASHBOARD_KEY) {
+  var p = (e && e.parameter) || {};
+
+  // Openbaar: alleen het pad van de hand-out bij een talk, verder niets.
+  if (p.talk) {
+    var talk = findTalk(p.talk);
+    return respond({ ok: true, handout: talk ? talk.handout : "" });
+  }
+
+  if (!p.key) return respond({ ok: true, versie: SCRIPT_VERSION });
+  if (!DASHBOARD_KEY || DASHBOARD_KEY.length < 16 || p.key !== DASHBOARD_KEY) {
     return respond({ ok: false, error: "geen toegang" });
   }
+
+  if (p.action === "saveTalk") return respond(saveTalk(p));
+  if (p.action === "deleteTalk") return respond(deleteTalk(p.code));
+  if (p.action === "talks") return respond({ ok: true, versie: SCRIPT_VERSION, talks: getTalks() });
+
   var values = getSheet().getDataRange().getValues();
   var rows = [];
   values.slice(1).forEach(function (r) {
@@ -36,7 +52,76 @@ function doGet(e) {
       organisatie: String(r[6] || "")
     });
   });
-  return respond({ ok: true, versie: SCRIPT_VERSION, rows: rows, aantalRijen: Math.max(values.length - 1, 0) });
+  return respond({ ok: true, versie: SCRIPT_VERSION, rows: rows, talks: getTalks(), aantalRijen: Math.max(values.length - 1, 0) });
+}
+
+function getTalksSheet() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName(TALKS_SHEET);
+  if (!sheet) {
+    sheet = ss.insertSheet(TALKS_SHEET);
+    sheet.appendRow(TALK_HEADERS);
+    sheet.setFrozenRows(1);
+  }
+  return sheet;
+}
+
+function getTalks() {
+  return getTalksSheet().getDataRange().getValues().slice(1)
+    .filter(function (r) { return r[0]; })
+    .map(function (r) {
+      var d = toDate(r[2]);
+      return {
+        code: String(r[0]),
+        naam: String(r[1] || ""),
+        datum: d ? Utilities.formatDate(d, Session.getScriptTimeZone(), "yyyy-MM-dd") : String(r[2] || ""),
+        handout: String(r[3] || "")
+      };
+    });
+}
+
+function findTalk(code) {
+  code = String(code);
+  var all = getTalks();
+  for (var i = 0; i < all.length; i++) if (all[i].code === code) return all[i];
+  return null;
+}
+
+// Alleen eigen paden zoals /samenvatting/ of /handouts/naam/, nooit een externe site.
+function safePath(v) {
+  v = String(v || "");
+  return /^\/(?!\/)[a-z0-9\-\/]*$/.test(v) ? v : "";
+}
+
+function saveTalk(p) {
+  var code = String(p.code || "").toLowerCase().replace(/[^a-z0-9-]/g, "").slice(0, 60);
+  if (!code) return { ok: false, error: "geen code" };
+  var lock = LockService.getScriptLock();
+  lock.waitLock(10000);
+  try {
+    var sheet = getTalksSheet();
+    var values = sheet.getDataRange().getValues();
+    var row = [code, clean(p.naam, 200), clean(p.datum, 20), safePath(p.handout)];
+    for (var i = 1; i < values.length; i++) {
+      if (String(values[i][0]) === code) {
+        sheet.getRange(i + 1, 1, 1, row.length).setValues([row]);
+        return { ok: true, talks: getTalks() };
+      }
+    }
+    sheet.appendRow(row);
+    return { ok: true, talks: getTalks() };
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+function deleteTalk(code) {
+  var sheet = getTalksSheet();
+  var values = sheet.getDataRange().getValues();
+  for (var i = values.length - 1; i >= 1; i--) {
+    if (String(values[i][0]) === String(code)) sheet.deleteRow(i + 1);
+  }
+  return { ok: true, talks: getTalks() };
 }
 
 function doPost(e) {

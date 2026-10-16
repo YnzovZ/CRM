@@ -1,17 +1,36 @@
 (function () {
-  var endpoint = (window.FEEDBACK_CONFIG || {}).endpoint;
   var TZ = "Europe/Amsterdam";
-  var STORE = "ynzo-dashboard-key";
 
   var $ = function (id) { return document.getElementById(id); };
-  var state = { rows: [], days: [], index: 0, talk: -1 };
+  var state = { rows: [], days: [], index: 0, talk: -1, names: {} };
 
   // Een nieuwe talk begint na een gat van meer dan 90 minuten, mits er daarna
   // minstens 3 reacties volgen. Losse nakomers tellen mee bij de talk ervoor.
   var GAP_MS = 90 * 60 * 1000;
   var MIN_TALK = 3;
 
+  // Talks met een eigen code (uit de QR-link) groeperen we op die code.
+  // Reacties zonder code splitsen we op tijd, zoals hieronder.
   function splitTalks(rows) {
+    var named = {}, rest = [];
+    rows.forEach(function (r) {
+      if (r.event && r.event !== "algemeen") (named[r.event] = named[r.event] || []).push(r);
+      else rest.push(r);
+    });
+    var groups = Object.keys(named).map(function (k) {
+      return named[k].sort(function (a, b) { return a.date - b.date; });
+    }).concat(splitByTime(rest));
+    return groups.sort(function (a, b) { return a[0].date - b[0].date; });
+  }
+
+  function talkName(group, i) {
+    var code = group[0].event;
+    if (code && code !== "algemeen") return state.names[code] || code;
+    return "Talk " + (i + 1);
+  }
+
+  function splitByTime(rows) {
+    if (!rows.length) return [];
     var sorted = rows.slice().sort(function (a, b) { return a.date - b.date; });
     var groups = [];
     sorted.forEach(function (r, i) {
@@ -26,17 +45,9 @@
     return talks;
   }
 
-  // Opslag kan ontbreken (privévenster), dus altijd in try/catch.
-  function getKey() { try { return localStorage.getItem(STORE) || ""; } catch (e) { return ""; } }
-  function setKey(k) { try { localStorage.setItem(STORE, k); } catch (e) {} }
-  function clearKey() { try { localStorage.removeItem(STORE); } catch (e) {} }
-
-  // Sleutel kan ook eenmalig via #key=... in de link meekomen.
-  var hash = new URLSearchParams(location.hash.slice(1));
-  if (hash.get("key")) {
-    setKey(hash.get("key"));
-    history.replaceState(null, "", location.pathname);
-  }
+  // Sleutel en opslag lopen via de centrale datalaag (lib/api.js).
+  var api = window.YnzoApi;
+  var getKey = api.getKey, setKey = api.setKey, clearKey = api.clearKey;
   var sessionKey = getKey();
 
   var dayFmt = new Intl.DateTimeFormat("en-CA", { timeZone: TZ, year: "numeric", month: "2-digit", day: "2-digit" });
@@ -84,12 +95,10 @@
   }
 
   function load(keepDay) {
-    if (!endpoint) { status("Geen koppeling met de Google Sheet ingesteld."); return; }
     if (!sessionKey) { showLogin(); return; }
     var current = state.days[state.index];
     status("Even laden...");
-    fetch(endpoint + "?key=" + encodeURIComponent(sessionKey) + "&t=" + Date.now())
-      .then(function (r) { return r.json(); })
+    api.feedback()
       .then(function (data) {
         if (!data.ok) {
           clearKey();
@@ -102,6 +111,8 @@
           return;
         }
         state.sheetRows = data.aantalRijen || 0;
+        state.names = {};
+        (data.talks || []).forEach(function (t) { if (t.naam) state.names[t.code] = t.naam; });
         state.rows = data.rows.map(function (r) { r.date = new Date(r.tijd); r.day = dayKey(r.date); return r; });
         var seen = {};
         state.days = state.rows.map(function (r) { return r.day; })
@@ -157,7 +168,7 @@
     $("day-label").textContent = (day === dayKey(new Date()) ? "vandaag, " : "") + label;
     var events = rows.map(function (r) { return r.event; })
       .filter(function (e, i, a) { return e && e !== "algemeen" && a.indexOf(e) === i; });
-    $("day-event").textContent = events.join(", ");
+    $("day-event").textContent = events.map(function (e) { return state.names[e] || e; }).join(", ");
 
     var sum = rows.reduce(function (s, r) { return s + r.cijfer; }, 0);
     var leads = rows.filter(function (r) { return r.interesse; });
@@ -223,7 +234,7 @@
     bar.hidden = talks.length < 2;
     if (talks.length < 2) return;
     talks.forEach(function (t, i) {
-      var b = el("button", "talk", "Talk " + (i + 1));
+      var b = el("button", "talk", talkName(t, i));
       b.type = "button";
       b.setAttribute("role", "tab");
       b.setAttribute("aria-selected", String(i === state.talk));
