@@ -1,7 +1,7 @@
 (function () {
   var api = window.YnzoApi;
   var $ = function (id) { return document.getElementById(id); };
-  var state = { talks: [], handouts: [], rows: [], editing: null, qrTalk: null, codeTouched: false };
+  var state = { talks: [], handouts: [], rows: [], agenda: [], editing: null, qrTalk: null, codeTouched: false, pendingAgenda: "" };
 
   var dateFmt = new Intl.DateTimeFormat("nl-NL", { day: "numeric", month: "short", year: "numeric" });
   var numFmt = new Intl.NumberFormat("nl-NL", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
@@ -72,8 +72,86 @@
         route();
         renderTalks();
         renderFeedback();
+        loadAgenda();
       })
       .catch(function () { status("Kan de gegevens nu niet ophalen. Check je verbinding."); });
+  }
+
+  // ---------- Agenda ----------
+  var weekdayFmt = new Intl.DateTimeFormat("nl-NL", { weekday: "short" });
+  $("agenda-refresh").addEventListener("click", loadAgenda);
+
+  function loadAgenda() {
+    $("agenda-status").textContent = "Agenda ophalen...";
+    api.agenda().then(function (data) {
+      if (!data.ok) {
+        $("agenda-status").textContent = /agenda|autho|permission|toestemming/i.test(data.error || "")
+          ? "Geen toegang tot je agenda. Open het script in Google, kies bovenin de functie testAgenda, klik op Uitvoeren en geef toestemming. Implementeer daarna een nieuwe versie."
+          : "Agenda ophalen mislukt: " + data.error;
+        return;
+      }
+      if (!data.agenda) {
+        $("agenda-status").textContent = "Het script in Google is nog niet bijgewerkt naar de agendaversie. Nodig: versie 7.";
+        return;
+      }
+      state.agenda = data.agenda;
+      renderAgenda();
+    }).catch(function () { $("agenda-status").textContent = "Agenda ophalen mislukt. Check je verbinding."; });
+  }
+
+  function linkedTalk(ev) {
+    return state.talks.filter(function (t) { return t.agendaId && t.agendaId === ev.id; })[0];
+  }
+
+  function renderAgenda() {
+    var list = $("agenda");
+    list.innerHTML = "";
+    $("agenda-status").textContent = state.agenda.length ? "" : "Geen talks gevonden in je agenda voor de komende 6 maanden.";
+    state.agenda.forEach(function (ev) {
+      var t = linkedTalk(ev);
+      var li = el("li", t ? "is-linked" : "");
+      var d = new Date(ev.datum + "T12:00:00");
+      var dateBox = el("div", "ag-date", formatDate(ev.datum));
+      dateBox.appendChild(el("small", null, weekdayFmt.format(d) + (ev.tijd ? ", " + ev.tijd : "")));
+      li.appendChild(dateBox);
+
+      var mid = el("div");
+      mid.appendChild(el("div", "ag-title", ev.titel || "(zonder titel)"));
+      if (ev.locatie) mid.appendChild(el("div", "ag-meta", ev.locatie));
+      if (t) mid.appendChild(el("span", "ag-linked", "QR klaar, " + handoutName(t.handout)));
+      li.appendChild(mid);
+
+      var acts = el("div", "ag-actions");
+      if (t) {
+        var bQr = el("button", "btn btn-small", "QR");
+        bQr.type = "button";
+        bQr.addEventListener("click", function () { showQr(t); $("qr-card").scrollIntoView({ behavior: "smooth", block: "center" }); });
+        var bEdit = el("button", "btn btn-small btn-ghost", "Bewerk");
+        bEdit.type = "button";
+        bEdit.addEventListener("click", function () { editTalk(t); });
+        acts.appendChild(bQr);
+        acts.appendChild(bEdit);
+      } else {
+        var bMake = el("button", "btn btn-small", "QR maken");
+        bMake.type = "button";
+        bMake.addEventListener("click", function () { prefillFromAgenda(ev); });
+        acts.appendChild(bMake);
+      }
+      li.appendChild(acts);
+      list.appendChild(li);
+    });
+  }
+
+  function prefillFromAgenda(ev) {
+    resetForm();
+    state.pendingAgenda = ev.id;
+    $("t-naam").value = ev.titel || "";
+    $("t-datum").value = ev.datum;
+    $("t-code").value = api.slugify((ev.titel || "talk") + "-" + ev.datum.slice(0, 4));
+    $("talk-form-title").textContent = "talk uit je agenda";
+    $("t-cancel").hidden = false;
+    $("talk-form").scrollIntoView({ behavior: "smooth", block: "start" });
+    $("t-naam").focus();
   }
 
   function fillHandoutSelect(select, value) {
@@ -104,6 +182,7 @@
 
   function resetForm() {
     state.editing = null;
+    state.pendingAgenda = "";
     state.codeTouched = false;
     $("talk-form").reset();
     $("t-code").disabled = false;
@@ -116,6 +195,7 @@
 
   function editTalk(t) {
     state.editing = t.code;
+    state.pendingAgenda = t.agendaId || "";
     $("t-naam").value = t.naam;
     $("t-datum").value = t.datum;
     $("t-code").value = t.code;
@@ -135,7 +215,7 @@
       $("t-error").hidden = false;
       return;
     }
-    save({ code: code, naam: $("t-naam").value.trim(), datum: $("t-datum").value, handout: $("t-handout").value }, function (t) {
+    save({ code: code, naam: $("t-naam").value.trim(), datum: $("t-datum").value, handout: $("t-handout").value, agendaId: state.pendingAgenda }, function (t) {
       resetForm();
       showQr(t);
     });
@@ -151,6 +231,7 @@
       status("Opgeslagen.");
       renderTalks();
       renderFeedback();
+      renderAgenda();
       var saved = state.talks.filter(function (t) { return t.code === talk.code; })[0];
       if (done && saved) done(saved);
     }).catch(function () {
@@ -242,7 +323,7 @@
       sel.setAttribute("aria-label", "Hand-out voor " + (t.naam || t.code));
       fillHandoutSelect(sel, t.handout);
       sel.addEventListener("change", function () {
-        save({ code: t.code, naam: t.naam, datum: t.datum, handout: sel.value });
+        save({ code: t.code, naam: t.naam, datum: t.datum, handout: sel.value, agendaId: t.agendaId || "" });
       });
       tdH.appendChild(sel);
       tr.appendChild(tdH);
@@ -270,6 +351,7 @@
           status("Verwijderd.");
           renderTalks();
           renderFeedback();
+          renderAgenda();
         });
       });
       acts.appendChild(bQr);

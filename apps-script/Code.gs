@@ -6,7 +6,13 @@ var HEADERS = ["Tijdstip", "Event", "Cijfer", "Waarom", "Interesse in talk", "E-
 
 // Tabblad met je talks: welke QR-code bij welke hand-out hoort.
 var TALKS_SHEET = "Talks";
-var TALK_HEADERS = ["Code", "Naam", "Datum", "Hand-out"];
+var TALK_HEADERS = ["Code", "Naam", "Datum", "Hand-out", "Agenda-ID"];
+
+// Agenda: afspraken met dit woord in de beschrijving (of titel) gelden als talk.
+// Leeg CALENDAR_ID = je standaardagenda.
+var CALENDAR_ID = "";
+var TALK_WORD = "talk";
+var AGENDA_DAYS = 180;
 
 // Vul je eigen adres in om bij elke lead een mail te krijgen. Leeg laten = geen mail.
 var NOTIFY_EMAIL = "";
@@ -16,7 +22,7 @@ var NOTIFY_EMAIL = "";
 var DASHBOARD_KEY = "";
 
 // Open de web-app-URL in je browser om te zien welke versie live staat.
-var SCRIPT_VERSION = "6 (talks en hand-outs)";
+var SCRIPT_VERSION = "7 (agenda)";
 
 function doGet(e) {
   var p = (e && e.parameter) || {};
@@ -35,6 +41,13 @@ function doGet(e) {
   if (p.action === "saveTalk") return respond(saveTalk(p));
   if (p.action === "deleteTalk") return respond(deleteTalk(p.code));
   if (p.action === "talks") return respond({ ok: true, versie: SCRIPT_VERSION, talks: getTalks() });
+  if (p.action === "agenda") {
+    try {
+      return respond({ ok: true, versie: SCRIPT_VERSION, agenda: getAgenda() });
+    } catch (err) {
+      return respond({ ok: false, error: "agenda: " + String(err) });
+    }
+  }
 
   var values = getSheet().getDataRange().getValues();
   var rows = [];
@@ -63,6 +76,10 @@ function getTalksSheet() {
     sheet.appendRow(TALK_HEADERS);
     sheet.setFrozenRows(1);
   }
+  var current = sheet.getRange(1, 1, 1, TALK_HEADERS.length).getValues()[0];
+  TALK_HEADERS.forEach(function (h, i) {
+    if (!current[i]) sheet.getRange(1, i + 1).setValue(h);
+  });
   return sheet;
 }
 
@@ -75,7 +92,8 @@ function getTalks() {
         code: String(r[0]),
         naam: String(r[1] || ""),
         datum: d ? Utilities.formatDate(d, Session.getScriptTimeZone(), "yyyy-MM-dd") : String(r[2] || ""),
-        handout: String(r[3] || "")
+        handout: String(r[3] || ""),
+        agendaId: String(r[4] || "")
       };
     });
 }
@@ -101,7 +119,7 @@ function saveTalk(p) {
   try {
     var sheet = getTalksSheet();
     var values = sheet.getDataRange().getValues();
-    var row = [code, clean(p.naam, 200), clean(p.datum, 20), safePath(p.handout)];
+    var row = [code, clean(p.naam, 200), clean(p.datum, 20), safePath(p.handout), clean(p.agendaId, 300)];
     for (var i = 1; i < values.length; i++) {
       if (String(values[i][0]) === code) {
         sheet.getRange(i + 1, 1, 1, row.length).setValues([row]);
@@ -113,6 +131,34 @@ function saveTalk(p) {
   } finally {
     lock.releaseLock();
   }
+}
+
+// Aankomende afspraken met het woord "talk" in beschrijving of titel.
+function getAgenda() {
+  var cal = CALENDAR_ID ? CalendarApp.getCalendarById(CALENDAR_ID) : CalendarApp.getDefaultCalendar();
+  if (!cal) throw new Error("agenda niet gevonden");
+  var start = new Date();
+  start.setHours(0, 0, 0, 0);
+  var end = new Date(start.getTime() + AGENDA_DAYS * 86400000);
+  var re = new RegExp("\\b" + TALK_WORD + "\\b", "i");
+  var tz = Session.getScriptTimeZone();
+  return cal.getEvents(start, end).filter(function (ev) {
+    return re.test(ev.getDescription() || "") || re.test(ev.getTitle() || "");
+  }).map(function (ev) {
+    return {
+      id: ev.getId() + "|" + ev.getStartTime().getTime(),
+      titel: ev.getTitle(),
+      start: ev.getStartTime().toISOString(),
+      datum: Utilities.formatDate(ev.getStartTime(), tz, "yyyy-MM-dd"),
+      tijd: ev.isAllDayEvent() ? "" : Utilities.formatDate(ev.getStartTime(), tz, "HH:mm"),
+      locatie: ev.getLocation() || ""
+    };
+  });
+}
+
+// Draai deze functie één keer in de editor om Google toegang tot je agenda te geven.
+function testAgenda() {
+  Logger.log(JSON.stringify(getAgenda(), null, 2));
 }
 
 function deleteTalk(code) {

@@ -67,6 +67,24 @@ input:focus, select:focus { outline: 3px solid var(--orange); outline-offset: 1p
 .card { background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 22px; margin-top: 20px; }
 .grid .card { margin-top: 0; }
 
+/* Agenda */
+.agenda-card { margin: 0 0 20px; }
+.agenda-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.agenda-head h2 { margin: 0; }
+.agenda { list-style: none; margin: 14px 0 0; padding: 0; display: flex; flex-direction: column; }
+.agenda li { display: grid; grid-template-columns: 120px minmax(0, 1fr) auto; gap: 16px; align-items: center; padding: 12px 0; border-top: 1px solid var(--line); }
+.agenda li:first-child { border-top: 0; }
+.ag-date { font-weight: 700; }
+.ag-date small { display: block; font-weight: 500; color: var(--muted); font-size: 13px; }
+.ag-title { font-weight: 700; overflow-wrap: anywhere; }
+.ag-meta { color: var(--muted); font-size: 14px; }
+.ag-linked { display: inline-block; margin-top: 4px; font-size: 13px; font-weight: 700; padding: 2px 8px; border-radius: 999px; background: var(--mint); }
+.ag-actions { display: flex; gap: 6px; }
+.agenda li.is-linked .ag-title::after { content: ""; }
+@media (max-width: 860px) {
+  .agenda li { grid-template-columns: 1fr; gap: 6px; }
+}
+
 /* QR */
 .qr { background: #fff; border: 2px solid var(--ink); border-radius: 14px; padding: 16px; display: flex; justify-content: center; }
 .qr svg { width: 100%; max-width: 260px; height: auto; display: block; }

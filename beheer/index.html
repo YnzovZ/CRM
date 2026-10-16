@@ -43,6 +43,16 @@
           <p>Maak per talk een eigen QR-code. Kies welke hand-out mensen na het formulier zien.</p>
         </header>
 
+        <div class="card agenda-card">
+          <div class="agenda-head">
+            <h2>aankomend in je agenda</h2>
+            <button type="button" class="btn btn-small btn-ghost" id="agenda-refresh">Vernieuwen</button>
+          </div>
+          <p class="hint">Afspraken met "Talk" in de beschrijving, de komende 6 maanden.</p>
+          <ul class="agenda" id="agenda"></ul>
+          <p class="hint" id="agenda-status"></p>
+        </div>
+
         <div class="grid">
           <form class="card" id="talk-form">
             <h2 id="talk-form-title">nieuwe talk</h2>

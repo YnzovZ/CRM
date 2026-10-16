@@ -68,3 +68,7 @@ De hand-out wordt pas bepaald op het moment dat iemand scant. Een QR-code blijft
 Beschikbare hand-outs staan in `handouts.json`. Een klantversie komt in `handouts/<naam>/` en krijgt daar een regel.
 
 Alle schermen praten via `lib/api.js` met de opslag. Gaat het systeem later naar een echte database, dan verandert alleen dat bestand.
+
+### Agenda
+
+Het blok "aankomend in je agenda" toont afspraken uit Google Agenda met het woord "talk" in de beschrijving of titel, voor de komende 6 maanden (`CALENDAR_ID`, `TALK_WORD` en `AGENDA_DAYS` in `apps-script/Code.gs`). Met "QR maken" wordt de talk voorgevuld en gekoppeld aan de afspraak (kolom "Agenda-ID" in het tabblad Talks). Eenmalig nodig: draai `testAgenda` in de Apps Script-editor om toegang tot je agenda te geven.
