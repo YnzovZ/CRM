@@ -253,8 +253,11 @@
     bar.innerHTML = "";
     bar.hidden = talks.length < 2;
     if (talks.length < 2) return;
+    var uncoded = talks.filter(function (t) { return !t[0].event || t[0].event === "algemeen"; });
     talks.forEach(function (t, i) {
-      var b = el("button", "talk", talkName(t, i));
+      var label = talkName(t, i);
+      if (uncoded.length > 1 && uncoded.indexOf(t) >= 0) label += " " + (uncoded.indexOf(t) + 1);
+      var b = el("button", "talk", label);
       b.type = "button";
       b.setAttribute("role", "tab");
       b.setAttribute("aria-selected", String(i === state.talk));
