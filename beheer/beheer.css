@@ -174,3 +174,6 @@ input:focus, select:focus { outline: 3px solid var(--orange); outline-offset: 1p
 .th-sort.is-active.asc::after { content: "\2191"; opacity: 1; }
 .th-sort.is-active.desc::after { content: "\2193"; opacity: 1; }
 .th-sort:hover { color: var(--ink); text-decoration: underline; }
+
+.fb-contact input:disabled { opacity: 1; cursor: default; }
+.fb-contact:has(input:disabled) { cursor: default; color: var(--muted); }

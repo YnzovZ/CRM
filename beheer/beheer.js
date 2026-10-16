@@ -496,7 +496,11 @@
           }).catch(function () { cb.disabled = false; cb.checked = !on; status("Opslaan mislukt. Check je verbinding."); });
         });
         lab.appendChild(cb);
-        lab.appendChild(document.createTextNode(" contact gehad"));
+        var labText = el("span", null, "contact gehad");
+        lab.appendChild(labText);
+        st._cb = cb;
+        st._labText = labText;
+        paintMail(st, key);
         right.appendChild(lab);
         li.appendChild(right);
         ul.appendChild(li);
@@ -579,6 +583,15 @@
   function paintMail(node, email) {
     node.className = "fb-mail";
     var row = node._row;
+    // Gemaild via Gmail telt ook als contact: vinkje aan en vast.
+    var viaGmail = !!(email && state.mailed[email] && state.mailed[email] !== "fout");
+    if (node._cb) {
+      var manual = !!(row && row.contact);
+      node._cb.checked = manual || viaGmail;
+      node._cb.disabled = viaGmail && !manual;
+      node._cb.parentNode.title = node._cb.disabled ? "Herkend via je verzonden mail" : "";
+      node._labText.textContent = node._cb.disabled ? "contact gehad (via Gmail)" : "contact gehad";
+    }
     if (row && row.contact) {
       var d = new Date(row.contact);
       node.textContent = "\u2713 contact gehad" + (isNaN(d) ? "" : " " + mailFmt.format(d).split(",")[0]);
