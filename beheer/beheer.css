@@ -162,10 +162,12 @@ input:focus, select:focus { outline: 3px solid var(--orange); outline-offset: 1p
   .fb-mail { justify-self: start; }
 }
 
-.fb-lead-status { display: flex; align-items: center; gap: 14px; justify-self: end; }
+.fb-lead-status { display: grid; grid-template-columns: 230px 200px; align-items: center; gap: 16px; justify-self: end; }
+.fb-lead-status .fb-mail { justify-self: end; }
+.fb-lead-status .fb-contact { justify-self: start; }
 .fb-contact { display: inline-flex; align-items: center; gap: 6px; margin: 0; font-size: 14px; font-weight: 700; cursor: pointer; white-space: nowrap; }
 .fb-contact input { width: 20px; height: 20px; margin: 0; accent-color: var(--ink); }
-@media (max-width: 860px) { .fb-lead-status { justify-self: start; flex-wrap: wrap; } }
+@media (max-width: 860px) { .fb-lead-status { justify-self: start; grid-template-columns: auto auto; } .fb-lead-status .fb-mail { justify-self: start; } }
 
 /* Sorteerbare kolommen */
 .th-sort { background: none; border: 0; padding: 0; font: inherit; color: inherit; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
