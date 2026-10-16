@@ -14,15 +14,23 @@ var CALENDAR_ID = "";
 var TALK_WORD = "talk";
 var AGENDA_DAYS = 180;
 
-// Vul je eigen adres in om bij elke lead een mail te krijgen. Leeg laten = geen mail.
-var NOTIFY_EMAIL = "";
+// Je sleutel en e-mailadres staan in Projectinstellingen > Scripteigenschappen
+// (DASHBOARD_KEY en NOTIFY_EMAIL), niet in deze code. Zo kun je de code altijd
+// in zijn geheel vervangen zonder ze opnieuw in te vullen.
+// Vul je ze hieronder toch in, dan worden ze bij de eerste keer vanzelf in de
+// scripteigenschappen bewaard en mag je ze hier daarna weer leegmaken.
+var NOTIFY_EMAIL = instelling("NOTIFY_EMAIL", "");
+var DASHBOARD_KEY = instelling("DASHBOARD_KEY", "");
 
-// Geheime sleutel voor je dashboard. Verzin zelf een lange code (minimaal 16 tekens)
-// en vul die hieronder in. Leeg laten = dashboard staat uit.
-var DASHBOARD_KEY = "";
+function instelling(naam, inCode) {
+  var props = PropertiesService.getScriptProperties();
+  var opgeslagen = props.getProperty(naam);
+  if (inCode && inCode !== opgeslagen) { props.setProperty(naam, inCode); return inCode; }
+  return opgeslagen || "";
+}
 
 // Open de web-app-URL in je browser om te zien welke versie live staat.
-var SCRIPT_VERSION = "12 (crm-overzicht)";
+var SCRIPT_VERSION = "13 (instellingen bewaard)";
 
 function doGet(e) {
   var p = (e && e.parameter) || {};
