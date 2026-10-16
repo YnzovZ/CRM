@@ -60,7 +60,7 @@ Groeperen gaat in deze volgorde: eerst op talkcode (kolom Event), los van het ti
 `/beheer/` is de beheeromgeving voor op je desktop, met dezelfde sleutel als het dashboard. Onderdelen:
 
 - **Talks & QR**: maak per talk een QR-code (`/?event=<code>`) en kies welke hand-out mensen na het formulier zien. Talks staan in het tabblad "Talks" van de Google Sheet.
-- **Feedback**: gemiddelde, aantal reacties en leads per talk, met een link naar het mobiele dashboard.
+- **Feedback**: gemiddelde, aantal reacties en leads per talk. Klik op een talk (of op het cijfer in "alle talks") en hij klapt open met de verdeling en alle reacties, cijfers en leads.
 - **Contacten**: plek voor het toekomstige CRM.
 
 De hand-out wordt pas bepaald op het moment dat iemand scant. Een QR-code blijft dus geldig, ook als je later een klantversie koppelt.

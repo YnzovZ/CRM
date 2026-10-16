@@ -329,8 +329,18 @@
       tdH.appendChild(sel);
       tr.appendChild(tdH);
 
-      var st = stats[t.code];
-      tr.appendChild(el("td", "num", st ? numFmt.format(st.sum / st.n) + " (" + st.n + ")" : "nog niets"));
+      var st = stats[String(t.code || "").trim().toLowerCase()];
+      var tdF = el("td", "num");
+      if (st) {
+        var fb = el("button", "link-btn", numFmt.format(st.sum / st.n) + " (" + st.n + ")");
+        fb.type = "button";
+        fb.title = "Bekijk de feedback";
+        fb.addEventListener("click", function () { openFeedback(t.code); });
+        tdF.appendChild(fb);
+      } else {
+        tdF.textContent = "nog niets";
+      }
+      tr.appendChild(tdF);
 
       var tdA = el("td");
       var acts = el("div", "actions");
@@ -364,21 +374,41 @@
     });
   }
 
+  function normCode(c) { return String(c || "").trim().toLowerCase() || "algemeen"; }
+
   function renderFeedback() {
     var body = $("fb-rows");
     body.innerHTML = "";
     var stats = statsByCode();
     var names = {};
-    state.talks.forEach(function (t) { names[t.code] = t.naam; });
+    state.talks.forEach(function (t) { names[normCode(t.code)] = t.naam; });
     Object.keys(stats).sort(function (a, b) { return stats[b].last.localeCompare(stats[a].last); }).forEach(function (code) {
       var s = stats[code];
-      var tr = el("tr");
-      tr.appendChild(el("td", null, code === "algemeen" ? "Zonder talkcode" : (names[code] || code)));
+      var open = state.openCode === code;
+      var tr = el("tr", "fb-row" + (open ? " is-open" : ""));
+      var tdName = el("td");
+      var btn = el("button", "fb-toggle", (code === "algemeen" ? "Zonder talkcode" : (names[code] || code)));
+      btn.type = "button";
+      btn.setAttribute("aria-expanded", String(open));
+      btn.addEventListener("click", function () {
+        state.openCode = open ? null : code;
+        renderFeedback();
+      });
+      tdName.appendChild(btn);
+      tr.appendChild(tdName);
       tr.appendChild(el("td", null, s.last ? dateFmt.format(new Date(s.last)) : ""));
       tr.appendChild(el("td", "num", String(s.n)));
       tr.appendChild(el("td", "num", numFmt.format(s.sum / s.n)));
       tr.appendChild(el("td", "num", String(s.leads)));
       body.appendChild(tr);
+      if (open) {
+        var dtr = el("tr", "fb-detail-row");
+        var dtd = el("td");
+        dtd.colSpan = 5;
+        dtd.appendChild(renderDetail(code));
+        dtr.appendChild(dtd);
+        body.appendChild(dtr);
+      }
     });
     if (!body.children.length) {
       var tr = el("tr");
@@ -387,6 +417,89 @@
       tr.appendChild(td);
       body.appendChild(tr);
     }
+  }
+
+  var timeFmt = new Intl.DateTimeFormat("nl-NL", { timeZone: "Europe/Amsterdam", day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
+
+  function renderDetail(code) {
+    var rows = state.rows.filter(function (r) { return normCode(r.event) === code; })
+      .sort(function (a, b) { return b.tijd.localeCompare(a.tijd); });
+    var wrap = el("div", "fb-detail");
+
+    // Samenvatting met verdeling
+    var top = el("div", "fb-top");
+    var sum = rows.reduce(function (a, r) { return a + r.cijfer; }, 0);
+    var hero = el("div", "fb-hero");
+    hero.appendChild(el("div", "fb-hero-label", "gemiddeld cijfer"));
+    hero.appendChild(el("div", "fb-hero-num", numFmt.format(sum / rows.length)));
+    var leads = rows.filter(function (r) { return r.interesse; });
+    hero.appendChild(el("div", "fb-hero-meta", rows.length + (rows.length === 1 ? " reactie" : " reacties") + ", " + leads.length + (leads.length === 1 ? " lead" : " leads")));
+    top.appendChild(hero);
+
+    var counts = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+    rows.forEach(function (r) { if (r.cijfer >= 1 && r.cijfer <= 10) counts[r.cijfer - 1]++; });
+    var max = Math.max.apply(null, counts);
+    var dist = el("div", "fb-dist");
+    dist.setAttribute("role", "img");
+    dist.setAttribute("aria-label", "Verdeling: " + counts.map(function (c, i) { return c ? (i + 1) + ": " + c + "x" : null; }).filter(Boolean).join(", "));
+    counts.forEach(function (c, i) {
+      var col = el("div", "fb-col");
+      var bar = el("i");
+      bar.style.height = c ? Math.max(6, c / max * 100) + "%" : "2px";
+      if (c) bar.appendChild(el("b", null, String(c)));
+      if (!c) col.className += " empty";
+      col.appendChild(bar);
+      col.appendChild(el("span", null, String(i + 1)));
+      dist.appendChild(col);
+    });
+    top.appendChild(dist);
+    wrap.appendChild(top);
+
+    // Alle feedback op een rij
+    var table = el("table", "table fb-table");
+    var thead = el("thead");
+    var hr = el("tr");
+    ["Tijd", "Cijfer", "Toelichting", "Lead"].forEach(function (h) { hr.appendChild(el("th", null, h)); });
+    thead.appendChild(hr);
+    table.appendChild(thead);
+    var tb = el("tbody");
+    rows.forEach(function (r) {
+      var tr = el("tr");
+      tr.appendChild(el("td", "fb-time", timeFmt.format(new Date(r.tijd))));
+      var tdS = el("td");
+      tdS.appendChild(el("span", "fb-score" + (r.cijfer < 6 ? " low" : ""), String(r.cijfer)));
+      tr.appendChild(tdS);
+      var txt = (r.waarom || "").trim();
+      tr.appendChild(el("td", "fb-text" + (txt ? "" : " muted"), txt || "alleen een cijfer"));
+      var tdL = el("td", "fb-lead");
+      if (r.interesse) {
+        if (r.organisatie) tdL.appendChild(el("div", "fb-org", r.organisatie));
+        if (r.email) {
+          var a = el("a", null, r.email);
+          a.href = "mailto:" + r.email;
+          tdL.appendChild(a);
+        }
+        if (!r.organisatie && !r.email) tdL.textContent = "ja";
+      }
+      tr.appendChild(tdL);
+      tb.appendChild(tr);
+    });
+    table.appendChild(tb);
+    var tw = el("div", "table-wrap");
+    tw.appendChild(table);
+    wrap.appendChild(tw);
+    return wrap;
+  }
+
+  // Vanuit "alle talks" direct naar de feedback van een talk.
+  function openFeedback(code) {
+    state.openCode = normCode(code);
+    location.hash = "#feedback";
+    renderFeedback();
+    setTimeout(function () {
+      var row = document.querySelector(".fb-row.is-open");
+      if (row) row.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 50);
   }
 
   start();
